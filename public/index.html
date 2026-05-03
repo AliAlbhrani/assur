@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Assur — Login</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --bg:       #080a10;
+  --bg2:      #0e1118;
+  --bg3:      #151922;
+  --bg4:      #1c2130;
+  --border:   #222736;
+  --border2:  #2e3448;
+  --text:     #e8eaf2;
+  --text2:    #8b92ab;
+  --text3:    #4a5068;
+  --accent:   #4f6ef7;
+  --accent2:  #7b96ff;
+  --green:    #2dd4a0;
+  --red:      #f06a6a;
+  --amber:    #f0a940;
+  --radius:   12px;
+  --radius-lg:16px;
+}
+
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  overflow:hidden;
+}
+
+/* ── BACKGROUND GRID ── */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size:48px 48px;
+  opacity:.35;
+  pointer-events:none;
+}
+
+/* ── GLOWS ── */
+.glow{
+  position:fixed;
+  border-radius:50%;
+  filter:blur(90px);
+  pointer-events:none;
+  animation:drift 12s ease-in-out infinite alternate;
+}
+.glow-1{width:420px;height:420px;background:rgba(79,110,247,.12);top:-80px;left:-100px;}
+.glow-2{width:340px;height:340px;background:rgba(45,212,160,.08);bottom:-60px;right:-60px;animation-delay:-6s;}
+
+@keyframes drift{
+  0%{transform:translate(0,0)}
+  100%{transform:translate(20px,15px)}
+}
+
+/* ── CARD ── */
+.card{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:20px;
+  width:420px;
+  max-width:calc(100vw - 32px);
+  padding:40px;
+  position:relative;
+  z-index:10;
+  animation:rise .5s cubic-bezier(.22,.61,.36,1) both;
+}
+
+@keyframes rise{
+  from{opacity:0;transform:translateY(18px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ── LOGO ── */
+.logo{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:32px;
+}
+.logo-mark{
+  width:42px;height:42px;
+  background:var(--accent);
+  border-radius:11px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;
+  font-weight:800;font-size:20px;color:#fff;
+  position:relative;overflow:hidden;
+}
+.logo-mark::after{
+  content:'';position:absolute;
+  top:-8px;right:-8px;
+  width:20px;height:20px;
+  background:rgba(255,255,255,.15);
+  border-radius:50%;
+}
+.logo-text{
+  font-family:'Syne',sans-serif;
+  font-weight:800;font-size:22px;
+  letter-spacing:-.5px;
+  color:var(--text);
+}
+.logo-text span{color:var(--accent2)}
+
+/* ── HEADINGS ── */
+.heading{
+  font-family:'Syne',sans-serif;
+  font-size:24px;font-weight:700;
+  letter-spacing:-.4px;
+  color:var(--text);
+  margin-bottom:6px;
+}
+.subheading{
+  font-size:13.5px;color:var(--text2);
+  margin-bottom:28px;line-height:1.5;
+}
+
+/* ── ROLE PILLS ── */
+.role-tabs{
+  display:flex;gap:6px;
+  margin-bottom:24px;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:4px;
+}
+.role-tab{
+  flex:1;padding:8px;
+  text-align:center;
+  font-size:12px;font-weight:500;
+  color:var(--text3);
+  border-radius:7px;
+  cursor:pointer;
+  transition:.15s;
+  border:none;background:none;
+  font-family:'DM Sans',sans-serif;
+}
+.role-tab:hover{color:var(--text2);background:var(--bg4)}
+.role-tab.active{
+  background:var(--bg4);
+  color:var(--text);
+  border:1px solid var(--border2);
+}
+.role-tab .role-icon{font-size:14px;display:block;margin-bottom:2px}
+
+/* ── FORM ── */
+.form-group{margin-bottom:16px;position:relative}
+.form-label{
+  display:block;
+  font-size:11.5px;font-weight:500;
+  color:var(--text3);
+  text-transform:uppercase;letter-spacing:.6px;
+  margin-bottom:7px;
+}
+.form-input{
+  width:100%;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  color:var(--text);
+  padding:12px 14px;
+  border-radius:10px;
+  font-size:14px;
+  font-family:'DM Sans',sans-serif;
+  outline:none;
+  transition:.2s;
+}
+.form-input:focus{
+  border-color:var(--accent);
+  background:var(--bg4);
+  box-shadow:0 0 0 3px rgba(79,110,247,.1);
+}
+.form-input::placeholder{color:var(--text3)}
+.form-input.error{border-color:var(--red);box-shadow:0 0 0 3px rgba(240,106,106,.1)}
+
+/* password toggle */
+.pw-wrap{position:relative}
+.pw-toggle{
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;
+  color:var(--text3);font-size:14px;padding:4px;
+  transition:.15s;
+}
+.pw-toggle:hover{color:var(--text2)}
+
+/* ── ERROR / SUCCESS BANNERS ── */
+.banner{
+  display:flex;align-items:center;gap:10px;
+  padding:11px 14px;
+  border-radius:10px;
+  font-size:13px;
+  margin-bottom:16px;
+  animation:fadeIn .2s ease both;
+}
+.banner-error{background:rgba(240,106,106,.1);border:1px solid rgba(240,106,106,.25);color:#f8a3a3}
+.banner-success{background:rgba(45,212,160,.1);border:1px solid rgba(45,212,160,.25);color:#7effd8}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── BUTTON ── */
+.btn-submit{
+  width:100%;
+  padding:13px;
+  background:var(--accent);
+  color:#fff;
+  border:none;
+  border-radius:10px;
+  font-size:14.5px;font-weight:500;
+  font-family:'Syne',sans-serif;
+  cursor:pointer;
+  transition:.2s;
+  position:relative;
+  overflow:hidden;
+  margin-top:4px;
+}
+.btn-submit:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-submit:active{transform:translateY(0)}
+.btn-submit:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.btn-submit .spinner{
+  display:inline-block;
+  width:16px;height:16px;
+  border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:spin .7s linear infinite;
+  vertical-align:middle;margin-right:6px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── DIVIDER ── */
+.divider{
+  display:flex;align-items:center;gap:12px;
+  color:var(--text3);font-size:12px;
+  margin:20px 0;
+}
+.divider::before,.divider::after{
+  content:'';flex:1;height:1px;background:var(--border);
+}
+
+/* ── FOOTER ── */
+.card-footer{
+  text-align:center;font-size:12.5px;
+  color:var(--text3);margin-top:20px;
+}
+.card-footer a{color:var(--accent2);text-decoration:none;font-weight:500}
+.card-footer a:hover{text-decoration:underline}
+
+/* ── ROLE BADGE (shown after login) ── */
+.role-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 12px;border-radius:20px;
+  font-size:12px;font-weight:500;
+}
+.role-admin{background:rgba(240,169,64,.12);color:var(--amber);border:1px solid rgba(240,169,64,.2)}
+.role-edu{background:rgba(79,110,247,.12);color:var(--accent2);border:1px solid rgba(79,110,247,.2)}
+.role-student{background:rgba(45,212,160,.12);color:var(--green);border:1px solid rgba(45,212,160,.2)}
+
+/* ── DASHBOARD SHELL (after login) ── */
+.dashboard{
+  display:none;
+  position:fixed;inset:0;
+  background:var(--bg);
+  z-index:200;
+  flex-direction:column;
+  align-items:center;justify-content:center;
+  animation:fadeIn .4s ease both;
+}
+.dashboard.show{display:flex}
+.dashboard-inner{text-align:center;max-width:460px;padding:24px}
+.welcome-icon{
+  width:72px;height:72px;
+  border-radius:20px;
+  background:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  font-size:32px;margin:0 auto 20px;
+  font-family:'Syne',sans-serif;font-weight:800;color:#fff;
+}
+.welcome-name{
+  font-family:'Syne',sans-serif;
+  font-size:28px;font-weight:700;
+  letter-spacing:-.5px;margin-bottom:8px;
+}
+.welcome-sub{font-size:14px;color:var(--text2);margin-bottom:24px;line-height:1.6}
+.redirect-bar{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:10px;padding:14px 20px;
+  font-size:13px;color:var(--text2);
+  display:flex;align-items:center;gap:10px;
+}
+.redirect-bar .dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--green);
+  flex-shrink:0;
+  box-shadow:0 0 8px var(--green);
+  animation:pulse 1.2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.logout-btn{
+  margin-top:16px;
+  background:none;border:1px solid var(--border2);
+  color:var(--text2);padding:8px 20px;border-radius:8px;
+  font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;
+  transition:.15s;
+}
+.logout-btn:hover{background:var(--bg3);color:var(--text)}
+</style>
+</head>
+<body>
+
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+
+<!-- ── LOGIN CARD ── -->
+<div class="card" id="login-card">
+  <div class="logo">
+    <div class="logo-mark">A</div>
+    <div class="logo-text">as<span>sur</span></div>
+  </div>
+
+  <div class="heading">Welcome back</div>
+  <p class="subheading">Sign in to your account to continue</p>
+
+  <!-- Role selector -->
+  <div class="role-tabs" id="role-tabs">
+    <button class="role-tab active" data-role="admin" onclick="selectRole(this)">
+      <span class="role-icon">⚙</span>Admin
+    </button>
+    <button class="role-tab" data-role="educational_user" onclick="selectRole(this)">
+      <span class="role-icon">📚</span>Teacher
+    </button>
+    <button class="role-tab" data-role="student" onclick="selectRole(this)">
+      <span class="role-icon">🎓</span>Student
+    </button>
+  </div>
+
+  <!-- Banner -->
+  <div id="banner" style="display:none"></div>
+
+  <!-- Form -->
+  <form id="login-form" onsubmit="handleLogin(event)">
+    <div class="form-group">
+      <label class="form-label">Phone Number</label>
+      <input class="form-input" type="text" id="phone" placeholder="Enter your phone number" autocomplete="username" required/>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <div class="pw-wrap">
+        <input class="form-input" type="password" id="password" placeholder="Enter your password" autocomplete="current-password" required/>
+        <button type="button" class="pw-toggle" onclick="togglePw()" id="pw-icon">👁</button>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-submit" id="submit-btn">Sign In</button>
+  </form>
+
+  <div class="card-footer">
+    Don't have an account? <a href="#" onclick="showInfo()">Contact your admin</a>
+  </div>
+</div>
+
+<!-- ── POST-LOGIN DASHBOARD ── -->
+<div class="dashboard" id="dashboard">
+  <div class="dashboard-inner">
+    <div class="welcome-icon" id="dash-icon">A</div>
+    <div class="welcome-name">Hello, <span id="dash-name">—</span> 👋</div>
+    <p class="welcome-sub">
+      You are logged in as <span id="dash-role-badge"></span><br/>
+      You will be redirected to your dashboard shortly.
+    </p>
+    <div class="redirect-bar">
+      <div class="dot"></div>
+      <span id="dash-redirect-msg">Preparing your workspace…</span>
+    </div>
+    <button class="logout-btn" onclick="handleLogout()">Sign out</button>
+  </div>
+</div>
+
+<script>
+const API = '/api';
+let selectedRole = 'admin';
+
+function selectRole(el) {
+  document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  selectedRole = el.dataset.role;
+}
+
+function togglePw() {
+  const input = document.getElementById('password');
+  const icon  = document.getElementById('pw-icon');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    icon.textContent = '👁';
+  }
+}
+
+function showBanner(type, msg) {
+  const b = document.getElementById('banner');
+  b.style.display = 'flex';
+  b.className = `banner banner-${type}`;
+  b.innerHTML = `<span>${type === 'error' ? '⚠' : '✓'}</span> ${msg}`;
+}
+
+function hideBanner() {
+  document.getElementById('banner').style.display = 'none';
+}
+
+function setLoading(on) {
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = on;
+  btn.innerHTML = on
+    ? '<span class="spinner"></span> Signing in…'
+    : 'Sign In';
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
+  hideBanner();
+
+  const phone    = document.getElementById('phone').value.trim();
+  const password = document.getElementById('password').value.trim();
+
+  if (!phone || !password) {
+    showBanner('error', 'Please fill in all fields.');
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const res  = await fetch(`${API}/login`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ phone, password }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      showBanner('error', data.error || 'Login failed.');
+      return;
+    }
+
+    showDashboard(data.user);
+
+  } catch (err) {
+    showBanner('error', 'Network error — make sure the server is running.');
+  } finally {
+    setLoading(false);
+  }
+}
+
+function showDashboard(user) {
+  const initials = user.full_name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('dash-icon').textContent = initials;
+  document.getElementById('dash-name').textContent  = user.full_name;
+
+  const roleMeta = {
+    admin:            { label: 'Administrator', cls: 'role-admin', msg: 'Loading admin panel…' },
+    educational_user: { label: 'Teacher / Staff',  cls: 'role-edu',   msg: 'Loading teacher dashboard…' },
+    student:          { label: 'Student',        cls: 'role-student', msg: 'Loading student portal…' },
+  };
+  const m = roleMeta[user.role] || roleMeta.student;
+
+  document.getElementById('dash-role-badge').innerHTML =
+    `<span class="role-badge ${m.cls}">${m.label}</span>`;
+  document.getElementById('dash-redirect-msg').textContent = m.msg;
+
+  document.getElementById('dashboard').classList.add('show');
+}
+
+async function handleLogout() {
+  await fetch(`${API}/logout`, { method: 'POST' }).catch(() => {});
+  document.getElementById('dashboard').classList.remove('show');
+  document.getElementById('login-form').reset();
+  hideBanner();
+}
+
+function showInfo() {
+  showBanner('error', 'Account creation is managed by your system administrator.');
+}
+
+// Check if already logged in on page load
+(async () => {
+  try {
+    const res = await fetch(`${API}/me`);
+    if (res.ok) {
+      const data = await res.json();
+      showDashboard(data.user);
+    }
+  } catch(_) {}
+})();
+</script>
+</body>
+</html>
