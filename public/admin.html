@@ -262,8 +262,9 @@ select.fi{cursor:pointer}
 
       <!-- Tabs -->
       <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:18px">
-        <button class="mtab active" onclick="switchMTab(this,'mt-teachers')" style="padding:8px 16px;font-size:13px;color:var(--text3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.15s;margin-bottom:-1px">👨‍🏫 Teachers</button>
-        <button class="mtab" onclick="switchMTab(this,'mt-students')" style="padding:8px 16px;font-size:13px;color:var(--text3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.15s;margin-bottom:-1px">🎓 Students</button>
+        <button class="mtab active" onclick="switchMTab(this,'mt-teachers')" style="padding:8px 16px;font-size:13px;color:var(--accent2);background:none;border:none;border-bottom:2px solid var(--accent2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:.15s;margin-bottom:-1px">👨‍🏫 Teachers</button>
+        <button class="mtab" onclick="switchMTab(this,'mt-students')"  style="padding:8px 16px;font-size:13px;color:var(--text3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.15s;margin-bottom:-1px">🎓 Students</button>
+        <button class="mtab" onclick="switchMTab(this,'mt-subjects')"  style="padding:8px 16px;font-size:13px;color:var(--text3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.15s;margin-bottom:-1px">📚 Subjects</button>
       </div>
 
       <!-- Teachers tab -->
@@ -282,6 +283,17 @@ select.fi{cursor:pointer}
           <button class="btn btn-primary btn-sm" onclick="assignStudent()">Assign</button>
         </div>
         <div id="students-member-list"></div>
+      </div>
+
+      <!-- Subjects tab -->
+      <div id="mt-subjects" style="display:none">
+        <div style="display:flex;gap:8px;margin-bottom:6px">
+          <input class="fi" id="new-subject-name" placeholder="Subject name e.g. Mathematics" style="flex:1"/>
+          <select class="fi" id="new-subject-teacher" style="width:180px"><option value="">Assign teacher (optional)</option></select>
+          <button class="btn btn-primary btn-sm" onclick="addSubject()">Add</button>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:14px">Only teachers assigned to this classroom appear in the list above.</div>
+        <div id="subjects-list"></div>
       </div>
 
     </div>
@@ -469,6 +481,7 @@ async function openManage(classroomId){
   const members = membersData.members || [];
   const teacherMemberIds = new Set(members.filter(m=>m.classroom_role==='teacher').map(m=>m.id));
   const studentMemberIds = new Set(members.filter(m=>m.classroom_role==='student').map(m=>m.id));
+  const assignedTeachers  = members.filter(m=>m.classroom_role==='teacher');
 
   const tSel = document.getElementById('assign-teacher-sel');
   tSel.innerHTML = '<option value="">Select a teacher to assign…</option>' +
@@ -480,6 +493,11 @@ async function openManage(classroomId){
     allStudents.filter(s=>!studentMemberIds.has(s.id))
       .map(s=>`<option value="${s.id}">${s.full_name} — ${s.phone}</option>`).join('');
 
+  // subject teacher select — only teachers already in this classroom
+  const stSel = document.getElementById('new-subject-teacher');
+  stSel.innerHTML = '<option value="">Assign teacher (optional)</option>' +
+    assignedTeachers.map(t=>`<option value="${t.id}">${t.full_name}</option>`).join('');
+
   renderMemberList(members);
 
   // reset to teachers tab
@@ -489,6 +507,8 @@ async function openManage(classroomId){
   });
   document.getElementById('mt-teachers').style.display='block';
   document.getElementById('mt-students').style.display='none';
+  document.getElementById('mt-subjects').style.display='none';
+  document.getElementById('new-subject-name').value='';
 
   openModal('manage-modal');
 }
@@ -527,9 +547,10 @@ function switchMTab(el, tabId){
   });
   el.style.color='var(--accent2)';
   el.style.borderBottomColor='var(--accent2)';
-  ['mt-teachers','mt-students'].forEach(id=>{
+  ['mt-teachers','mt-students','mt-subjects'].forEach(id=>{
     document.getElementById(id).style.display = id===tabId ? 'block' : 'none';
   });
+  if(tabId==='mt-subjects') loadSubjects();
 }
 
 async function assignTeacher(){
@@ -574,6 +595,48 @@ async function deleteClassroom(id){
   const d=await api('/classrooms/'+id,{method:'DELETE'});
   if(d.message){toast(d.message);loadClassrooms();loadStats();}
   else toast(d.error||'Error','error');
+}
+
+async function loadSubjects(){
+  if(!managingClassroomId) return;
+  const d = await api(`/classrooms/${managingClassroomId}/subjects`);
+  const subjects = d.subjects || [];
+  const el = document.getElementById('subjects-list');
+  if(!subjects.length){
+    el.innerHTML='<div style="padding:16px 0;color:var(--text3);font-size:13px;text-align:center">No subjects yet — add one above</div>';
+    return;
+  }
+  el.innerHTML = subjects.map(s=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-size:13px;font-weight:500;color:var(--text)">${s.name}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">
+          ${s.teacher_name ? '👨‍🏫 '+s.teacher_name : 'No teacher assigned'}
+        </div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="deleteSubject(${s.id})">Delete</button>
+    </div>`).join('');
+}
+
+async function addSubject(){
+  const name = document.getElementById('new-subject-name').value.trim();
+  const teacher_id = +document.getElementById('new-subject-teacher').value || null;
+  if(!name){ toast('Subject name is required','error'); return; }
+  const d = await api(`/classrooms/${managingClassroomId}/subjects`,{
+    method:'POST', body:JSON.stringify({name, teacher_id})
+  });
+  if(d.id){
+    toast('Subject added!');
+    document.getElementById('new-subject-name').value='';
+    loadSubjects();
+  } else toast(d.error||'Failed','error');
+}
+
+async function deleteSubject(id){
+  if(!confirm('Delete this subject? All grades for this subject will also be deleted.'))return;
+  const d = await api(`/subjects/${id}`,{method:'DELETE'});
+  if(d.message){ toast('Subject deleted'); loadSubjects(); }
+  else toast(d.error||'Failed','error');
 }
 
 // ── POSTS ──

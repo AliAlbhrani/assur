@@ -326,9 +326,15 @@ async function loadStudentsByClass(){
 
 async function loadGradeModalSubjects(){
   const clsId=document.getElementById('gm-cls').value;
-  if(!clsId)return;
+  const subjSel=document.getElementById('gm-subj');
+  if(!clsId){ subjSel.innerHTML='<option value="">Select classroom first</option>'; return; }
   const d=await api(`/classrooms/${clsId}/subjects`);
-  populateSelect('gm-subj',d.subjects||[],'id','name','Select subject');
+  const subjects=d.subjects||[];
+  if(!subjects.length){
+    subjSel.innerHTML='<option value="">No subjects yet — ask admin to add subjects</option>';
+  } else {
+    populateSelect('gm-subj',subjects,'id','name','Select subject');
+  }
 }
 async function loadGradeModalStudents(){
   const clsId=document.getElementById('gm-cls').value;
