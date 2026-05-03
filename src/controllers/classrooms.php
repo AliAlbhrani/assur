@@ -117,3 +117,83 @@ function create_subject(int $classroom_id): never
     $stmt->execute();
     json_out(['message' => 'Subject created', 'id' => $stmt->insert_id], 201);
 }
+
+// ── GET ALL CLASSROOMS (for enrollment — visible to students) ─
+function get_all_classrooms_public(): never
+{
+    require_auth();
+    $uid  = current_user()['id'];
+    $stmt = db()->prepare(
+        'SELECT c.id, c.name, c.grade, c.description,
+         (SELECT COUNT(*) FROM classroom_members cm WHERE cm.classroom_id=c.id AND cm.role="student") as student_count,
+         (SELECT COUNT(*) FROM classroom_members cm WHERE cm.classroom_id=c.id AND cm.role="teacher") as teacher_count,
+         EXISTS(SELECT 1 FROM classroom_members cm WHERE cm.classroom_id=c.id AND cm.user_id=?) as is_enrolled
+         FROM classrooms c ORDER BY c.name ASC'
+    );
+    $stmt->bind_param('i', $uid);
+    $stmt->execute();
+    json_out(['classrooms' => $stmt->get_result()->fetch_all(MYSQLI_ASSOC)]);
+}
+
+// ── STUDENT SELF-ENROLL ───────────────────────────────────────
+function enroll_self(int $classroom_id): never
+{
+    require_role('student');
+    $uid = current_user()['id'];
+
+    // check classroom exists
+    $stmt = db()->prepare('SELECT id FROM classrooms WHERE id=? LIMIT 1');
+    $stmt->bind_param('i', $classroom_id);
+    $stmt->execute();
+    $stmt->store_result();
+    if ($stmt->num_rows === 0) json_error('Classroom not found', 404);
+    $stmt->close();
+
+    // check not already enrolled
+    $stmt = db()->prepare('SELECT id FROM classroom_members WHERE classroom_id=? AND user_id=? LIMIT 1');
+    $stmt->bind_param('ii', $classroom_id, $uid);
+    $stmt->execute();
+    $stmt->store_result();
+    if ($stmt->num_rows > 0) json_error('You are already enrolled in this classroom', 409);
+    $stmt->close();
+
+    $role = 'student';
+    $stmt = db()->prepare('INSERT INTO classroom_members (classroom_id,user_id,role) VALUES (?,?,?)');
+    $stmt->bind_param('iis', $classroom_id, $uid, $role);
+    $stmt->execute();
+    json_out(['message' => 'Enrolled successfully'], 201);
+}
+
+// ── STUDENT SELF-UNENROLL ─────────────────────────────────────
+function unenroll_self(int $classroom_id): never
+{
+    require_role('student');
+    $uid  = current_user()['id'];
+    $stmt = db()->prepare('DELETE FROM classroom_members WHERE classroom_id=? AND user_id=?');
+    $stmt->bind_param('ii', $classroom_id, $uid);
+    $stmt->execute();
+    if ($stmt->affected_rows === 0) json_error('You are not enrolled in this classroom', 404);
+    json_out(['message' => 'Unenrolled successfully']);
+}
+
+// ── GET ALL TEACHERS (for admin assign modal) ─────────────────
+function get_teachers(): never
+{
+    require_role('admin');
+    $stmt = db()->prepare(
+        'SELECT id, full_name, phone, email FROM users WHERE role="educational_user" AND is_active=1 ORDER BY full_name'
+    );
+    $stmt->execute();
+    json_out(['teachers' => $stmt->get_result()->fetch_all(MYSQLI_ASSOC)]);
+}
+
+// ── GET ALL STUDENTS (for admin assign modal) ─────────────────
+function get_students(): never
+{
+    require_role('admin');
+    $stmt = db()->prepare(
+        'SELECT id, full_name, phone, email FROM users WHERE role="student" AND is_active=1 ORDER BY full_name'
+    );
+    $stmt->execute();
+    json_out(['students' => $stmt->get_result()->fetch_all(MYSQLI_ASSOC)]);
+}

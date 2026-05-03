@@ -93,6 +93,9 @@ tr:hover td{background:var(--bg3)}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Attendance
     </button>
     <div class="nav-label">School</div>
+    <button class="nav-item" onclick="nav('enroll',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Enroll
+    </button>
     <button class="nav-item" onclick="nav('posts',this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Announcements
     </button>
@@ -194,6 +197,15 @@ tr:hover td{background:var(--bg3)}
     </div>
   </div>
 
+  <!-- ENROLL -->
+  <div id="page-enroll" class="page content">
+    <div style="margin-bottom:18px">
+      <div style="font-family:Syne,sans-serif;font-size:18px;font-weight:700;margin-bottom:4px">Available Classrooms</div>
+      <div style="font-size:13px;color:var(--text3)">Browse and enroll in classrooms. You can unenroll at any time.</div>
+    </div>
+    <div id="enroll-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px"></div>
+  </div>
+
   <!-- ANNOUNCEMENTS / POSTS -->
   <div id="page-posts" class="page content">
     <div id="posts-list"></div>
@@ -214,12 +226,60 @@ function nav(page,el){
   document.getElementById('page-'+page).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   if(el)el.classList.add('active');
-  const titles={dashboard:'Overview',grades:'My Grades',ratings:'My Ratings',attendance:'Attendance',posts:'Announcements'};
+  const titles={dashboard:'Overview',grades:'My Grades',ratings:'My Ratings',attendance:'Attendance',enroll:'Enroll in Classrooms',posts:'Announcements'};
   document.getElementById('page-title').textContent=titles[page]||page;
   if(page==='grades')loadGrades();
   if(page==='ratings')loadRatings();
   if(page==='attendance')loadAttendance();
+  if(page==='enroll')loadEnroll();
   if(page==='posts')loadPosts();
+}
+
+async function loadEnroll(){
+  const d = await api('/classrooms/browse');
+  const list = d.classrooms || [];
+  const grid = document.getElementById('enroll-grid');
+  if(!list.length){
+    grid.innerHTML='<div class="empty" style="grid-column:1/-1">No classrooms available yet.</div>';
+    return;
+  }
+  grid.innerHTML = list.map(c=>`
+    <div class="card" style="display:flex;flex-direction:column;gap:10px">
+      <div>
+        <div style="font-family:Syne,sans-serif;font-size:15px;font-weight:700;margin-bottom:3px">${c.name}</div>
+        <div style="font-size:12px;color:var(--text3)">${c.grade||'No grade specified'}</div>
+        ${c.description?`<p style="font-size:12px;color:var(--text2);margin-top:6px;line-height:1.5">${c.description}</p>`:''}
+      </div>
+      <div style="display:flex;gap:8px">
+        <span class="badge bg-blue" style="font-size:11px">👨‍🏫 ${c.teacher_count} teachers</span>
+        <span class="badge bg-purple" style="font-size:11px">🎓 ${c.student_count} students</span>
+      </div>
+      ${+c.is_enrolled
+        ? `<button class="btn btn-sm" style="background:rgba(240,106,106,.1);color:var(--red);border:1px solid rgba(240,106,106,.2);justify-content:center" onclick="unenroll(${c.id})">✓ Enrolled — Leave</button>`
+        : `<button class="btn btn-sm" style="background:var(--accent);color:#fff;justify-content:center" onclick="enroll(${c.id})">+ Enroll</button>`
+      }
+    </div>`).join('');
+}
+
+async function enroll(classroomId){
+  const d = await api(`/classrooms/${classroomId}/enroll`,{method:'POST'});
+  if(d.message){ showToast('Enrolled successfully!'); loadEnroll(); }
+  else showToast(d.error||'Failed','error');
+}
+
+async function unenroll(classroomId){
+  if(!confirm('Leave this classroom?'))return;
+  const d = await api(`/classrooms/${classroomId}/enroll`,{method:'DELETE'});
+  if(d.message){ showToast('You have left the classroom'); loadEnroll(); }
+  else showToast(d.error||'Failed','error');
+}
+
+function showToast(msg, type='success'){
+  const t=document.createElement('div');
+  t.style.cssText=`position:fixed;bottom:24px;right:24px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;color:${type==='error'?'var(--red)':'var(--green)'};z-index:500;animation:slideUp .25s ease`;
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3000);
 }
 
 function gradeLetter(score,max){

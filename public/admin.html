@@ -208,7 +208,7 @@ select.fi{cursor:pointer}
     <div class="filters">
       <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="openModal('cls-modal')">+ New Classroom</button>
     </div>
-    <div id="cls-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px"></div>
+    <div id="cls-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px"></div>
   </div>
 
   <!-- POSTS -->
@@ -245,6 +245,46 @@ select.fi{cursor:pointer}
       <div class="fg"><label class="fl">Description</label><textarea class="fi" id="cl-desc" rows="3" placeholder="Optional description…" style="resize:vertical"></textarea></div>
     </div>
     <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('cls-modal')">Cancel</button><button class="btn btn-primary" onclick="submitClassroom()">Create</button></div>
+  </div>
+</div>
+
+<!-- MANAGE CLASSROOM MODAL -->
+<div class="overlay" id="manage-modal">
+  <div class="modal" style="width:560px">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="manage-cls-name">Manage Classroom</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:2px" id="manage-cls-grade"></div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('manage-modal')">✕</button>
+    </div>
+    <div class="modal-body" style="padding-top:16px">
+
+      <!-- Tabs -->
+      <div style="display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:18px">
+        <button class="mtab active" onclick="switchMTab(this,'mt-teachers')" style="padding:8px 16px;font-size:13px;color:var(--text3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.15s;margin-bottom:-1px">👨‍🏫 Teachers</button>
+        <button class="mtab" onclick="switchMTab(this,'mt-students')" style="padding:8px 16px;font-size:13px;color:var(--text3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:'DM Sans',sans-serif;transition:.15s;margin-bottom:-1px">🎓 Students</button>
+      </div>
+
+      <!-- Teachers tab -->
+      <div id="mt-teachers">
+        <div style="display:flex;gap:8px;margin-bottom:14px">
+          <select class="fi" id="assign-teacher-sel" style="flex:1"><option value="">Select a teacher to assign…</option></select>
+          <button class="btn btn-primary btn-sm" onclick="assignTeacher()">Assign</button>
+        </div>
+        <div id="teachers-member-list"></div>
+      </div>
+
+      <!-- Students tab -->
+      <div id="mt-students" style="display:none">
+        <div style="display:flex;gap:8px;margin-bottom:14px">
+          <select class="fi" id="assign-student-sel" style="flex:1"><option value="">Select a student to assign…</option></select>
+          <button class="btn btn-primary btn-sm" onclick="assignStudent()">Assign</button>
+        </div>
+        <div id="students-member-list"></div>
+      </div>
+
+    </div>
   </div>
 </div>
 
@@ -380,26 +420,143 @@ async function submitUser(){
 }
 
 // ── CLASSROOMS ──
+let managingClassroomId = null;
+let allTeachers = [], allStudents = [];
+
 async function loadClassrooms(){
-  const d=await api('/classrooms');
-  allClassrooms=d.classrooms||[];
-  const grid=document.getElementById('cls-grid');
-  if(!allClassrooms.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1">No classrooms yet.</div>';return;}
-  grid.innerHTML=allClassrooms.map(c=>`
+  const [cd, td, sd] = await Promise.all([
+    api('/classrooms'),
+    api('/teachers'),
+    api('/students'),
+  ]);
+  allClassrooms = cd.classrooms || [];
+  allTeachers   = td.teachers  || [];
+  allStudents   = sd.students  || [];
+
+  const grid = document.getElementById('cls-grid');
+  if(!allClassrooms.length){
+    grid.innerHTML='<div class="empty" style="grid-column:1/-1">No classrooms yet. Create one to get started.</div>';
+    return;
+  }
+  grid.innerHTML = allClassrooms.map(c=>`
     <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
         <div>
           <div style="font-family:Syne,sans-serif;font-size:15px;font-weight:700;margin-bottom:3px">${c.name}</div>
           <div style="font-size:12px;color:var(--text3)">${c.grade||'No grade specified'}</div>
         </div>
         <button class="btn btn-danger btn-sm" onclick="deleteClassroom(${c.id})">Delete</button>
       </div>
-      <div style="display:flex;gap:10px;margin-top:10px">
+      ${c.description?`<p style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.5">${c.description}</p>`:''}
+      <div style="display:flex;gap:8px;margin-bottom:14px">
         <span class="badge bg-blue">👨‍🏫 ${c.teacher_count} teachers</span>
         <span class="badge bg-green">🎓 ${c.student_count} students</span>
       </div>
-      ${c.description?`<p style="font-size:12px;color:var(--text2);margin-top:10px">${c.description}</p>`:''}
+      <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center" onclick="openManage(${c.id})">
+        ⚙ Manage Members
+      </button>
     </div>`).join('');
+}
+
+async function openManage(classroomId){
+  managingClassroomId = classroomId;
+  const cls = allClassrooms.find(c => c.id === classroomId);
+  document.getElementById('manage-cls-name').textContent = cls?.name || 'Classroom';
+  document.getElementById('manage-cls-grade').textContent = cls?.grade || '';
+
+  // populate teacher select — exclude already-members
+  const membersData = await api(`/classrooms/${classroomId}/members`);
+  const members = membersData.members || [];
+  const teacherMemberIds = new Set(members.filter(m=>m.classroom_role==='teacher').map(m=>m.id));
+  const studentMemberIds = new Set(members.filter(m=>m.classroom_role==='student').map(m=>m.id));
+
+  const tSel = document.getElementById('assign-teacher-sel');
+  tSel.innerHTML = '<option value="">Select a teacher to assign…</option>' +
+    allTeachers.filter(t=>!teacherMemberIds.has(t.id))
+      .map(t=>`<option value="${t.id}">${t.full_name} — ${t.phone}</option>`).join('');
+
+  const sSel = document.getElementById('assign-student-sel');
+  sSel.innerHTML = '<option value="">Select a student to assign…</option>' +
+    allStudents.filter(s=>!studentMemberIds.has(s.id))
+      .map(s=>`<option value="${s.id}">${s.full_name} — ${s.phone}</option>`).join('');
+
+  renderMemberList(members);
+
+  // reset to teachers tab
+  document.querySelectorAll('.mtab').forEach((t,i)=>{
+    t.style.color = i===0 ? 'var(--accent2)' : 'var(--text3)';
+    t.style.borderBottomColor = i===0 ? 'var(--accent2)' : 'transparent';
+  });
+  document.getElementById('mt-teachers').style.display='block';
+  document.getElementById('mt-students').style.display='none';
+
+  openModal('manage-modal');
+}
+
+function renderMemberList(members){
+  const teachers = members.filter(m=>m.classroom_role==='teacher');
+  const students = members.filter(m=>m.classroom_role==='student');
+
+  document.getElementById('teachers-member-list').innerHTML = teachers.length
+    ? teachers.map(m=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)">
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--text)">${m.full_name}</div>
+            <div style="font-size:11px;color:var(--text3)">${m.phone}</div>
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="removeMember(${m.id})">Remove</button>
+        </div>`).join('')
+    : '<div style="padding:16px 0;color:var(--text3);font-size:13px;text-align:center">No teachers assigned yet</div>';
+
+  document.getElementById('students-member-list').innerHTML = students.length
+    ? students.map(m=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)">
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--text)">${m.full_name}</div>
+            <div style="font-size:11px;color:var(--text3)">${m.phone}</div>
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="removeMember(${m.id})">Remove</button>
+        </div>`).join('')
+    : '<div style="padding:16px 0;color:var(--text3);font-size:13px;text-align:center">No students assigned yet</div>';
+}
+
+function switchMTab(el, tabId){
+  document.querySelectorAll('.mtab').forEach(t=>{
+    t.style.color='var(--text3)';
+    t.style.borderBottomColor='transparent';
+  });
+  el.style.color='var(--accent2)';
+  el.style.borderBottomColor='var(--accent2)';
+  ['mt-teachers','mt-students'].forEach(id=>{
+    document.getElementById(id).style.display = id===tabId ? 'block' : 'none';
+  });
+}
+
+async function assignTeacher(){
+  const userId = +document.getElementById('assign-teacher-sel').value;
+  if(!userId){toast('Select a teacher first','error');return;}
+  const d = await api(`/classrooms/${managingClassroomId}/members`,{
+    method:'POST', body:JSON.stringify({user_id:userId, role:'teacher'})
+  });
+  if(d.message){ toast('Teacher assigned!'); await openManage(managingClassroomId); loadClassrooms(); }
+  else toast(d.error||'Failed','error');
+}
+
+async function assignStudent(){
+  const userId = +document.getElementById('assign-student-sel').value;
+  if(!userId){toast('Select a student first','error');return;}
+  const d = await api(`/classrooms/${managingClassroomId}/members`,{
+    method:'POST', body:JSON.stringify({user_id:userId, role:'student'})
+  });
+  if(d.message){ toast('Student assigned!'); await openManage(managingClassroomId); loadClassrooms(); }
+  else toast(d.error||'Failed','error');
+}
+
+async function removeMember(userId){
+  if(!confirm('Remove this member from the classroom?'))return;
+  const d = await api(`/classrooms/${managingClassroomId}/members/${userId}`,{method:'DELETE'});
+  if(d.message){ toast('Member removed'); await openManage(managingClassroomId); loadClassrooms(); }
+  else toast(d.error||'Failed','error');
 }
 
 async function submitClassroom(){
@@ -413,7 +570,7 @@ async function submitClassroom(){
 }
 
 async function deleteClassroom(id){
-  if(!confirm('Delete this classroom?'))return;
+  if(!confirm('Delete this classroom? All members and grades will be lost.'))return;
   const d=await api('/classrooms/'+id,{method:'DELETE'});
   if(d.message){toast(d.message);loadClassrooms();loadStats();}
   else toast(d.error||'Error','error');

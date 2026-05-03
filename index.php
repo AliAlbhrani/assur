@@ -2,13 +2,22 @@
 
 declare(strict_types=1);
 
-// Serve frontend for non-API routes
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-if (!str_starts_with($path, '/api')) {
-    // Serve the HTML frontend for all non-API paths (SPA-style)
-    require __DIR__ . '/public/index.html';
+// Serve API requests to the router
+if (str_starts_with($path, '/api')) {
+    require __DIR__ . '/src/router.php';
     exit;
 }
 
-require __DIR__ . '/src/router.php';
+// Serve actual HTML files from /public directly
+if (str_starts_with($path, '/public/') && str_ends_with($path, '.html')) {
+    $file = __DIR__ . $path;
+    if (file_exists($file)) {
+        readfile($file);
+        exit;
+    }
+}
+
+// Serve the login page for everything else
+require __DIR__ . '/public/index.html';

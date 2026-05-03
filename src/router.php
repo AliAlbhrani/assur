@@ -54,6 +54,15 @@ match(true) {
     $method==='POST'   && $base==='/api/classrooms' && $id && $sub==='members'                     => add_member($id),
     $method==='DELETE' && $base==='/api/classrooms' && $id && $sub==='members' && $sub_id          => remove_member($id, $sub_id),
 
+    // Student self-enrollment
+    $method==='GET'    && $path==='/api/classrooms/browse'                                         => get_all_classrooms_public(),
+    $method==='POST'   && $base==='/api/classrooms' && $id && $sub==='enroll'                      => enroll_self($id),
+    $method==='DELETE' && $base==='/api/classrooms' && $id && $sub==='enroll'                      => unenroll_self($id),
+
+    // Teachers & students lists for admin
+    $method==='GET' && $path==='/api/teachers'  => get_teachers(),
+    $method==='GET' && $path==='/api/students'  => get_students(),
+
     // Subjects
     $method==='GET'  && $base==='/api/classrooms' && $id && $sub==='subjects'  => get_subjects($id),
     $method==='POST' && $base==='/api/classrooms' && $id && $sub==='subjects'  => create_subject($id),
