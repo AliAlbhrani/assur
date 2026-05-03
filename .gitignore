@@ -3,3 +3,4 @@ vendor/
 uploads/
 *.log
 .DS_Store
+.php*
