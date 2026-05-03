@@ -272,3 +272,27 @@ function createAdmin(): never
         ],
     ], 201);
 }
+// ── ADMIN CHANGE USER PASSWORD ────────────────────────────────
+function admin_change_password(int $user_id): never
+{
+    require_role('admin');
+    $data     = body();
+    $password = trim($data['password'] ?? '');
+
+    if (!$password) {
+        json_error('Password is required');
+    }
+    if (strlen($password) < 8) {
+        json_error('Password must be at least 8 characters');
+    }
+
+    $hashed = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
+    $stmt   = db()->prepare('UPDATE users SET password = ? WHERE id = ?');
+    $stmt->bind_param('si', $hashed, $user_id);
+    $stmt->execute();
+
+    if ($stmt->affected_rows === 0) {
+        json_error('User not found', 404);
+    }
+    json_out(['message' => 'Password updated successfully']);
+}

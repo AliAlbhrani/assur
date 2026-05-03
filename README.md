@@ -9,7 +9,6 @@ A web-based school management platform built with **Pure PHP 8.1+**, **MySQL**, 
 - [Requirements](#requirements)
 - [Project Structure](#project-structure)
 - [Installation](#installation)
-- [Default Login](#default-login)
 - [User Roles](#user-roles)
 - [Workflow](#workflow)
 - [API Reference](#api-reference)
@@ -114,20 +113,6 @@ php -S localhost:8000 index.php
 ```
 
 Open your browser at **http://localhost:8000**
-
----
-
-## Default Login
-
-The schema seeds one admin account automatically:
-
-| Field | Value |
-|-------|-------|
-| Phone | `00000` |
-| Password | `password` |
-| Role | Admin |
-
-> **Change this password immediately after your first login.**
 
 ---
 

@@ -142,9 +142,14 @@ select.fi{cursor:pointer}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       Posts
     </button>
+    <div class="nav-label">Account</div>
+    <button class="nav-item" onclick="nav('profile',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      My Profile
+    </button>
   </nav>
   <div class="sidebar-footer">
-    <div class="user-row">
+    <div class="user-row" onclick="nav('profile',document.querySelector('[onclick*=profile]'))" style="cursor:pointer">
       <div class="avi" id="nav-avi">A</div>
       <div class="user-meta">
         <div class="nm" id="nav-name">Admin</div>
@@ -218,7 +223,81 @@ select.fi{cursor:pointer}
     </div>
     <div id="posts-list" style="display:flex;flex-direction:column;gap:14px"></div>
   </div>
+
+  <!-- PROFILE -->
+  <div id="page-profile" class="page content">
+    <div style="max-width:560px;display:flex;flex-direction:column;gap:20px">
+
+      <!-- Info card -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">My Information</div><button class="btn btn-ghost btn-sm" onclick="openEditProfile()">Edit</button></div>
+        <div style="display:flex;align-items:center;gap:18px;margin-bottom:20px">
+          <div id="prof-avi" style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-family:Syne,sans-serif;font-weight:800;font-size:22px;color:#fff;flex-shrink:0">A</div>
+          <div>
+            <div style="font-family:Syne,sans-serif;font-size:20px;font-weight:700" id="prof-name">—</div>
+            <div style="font-size:13px;color:var(--text3);margin-top:3px" id="prof-role">—</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Phone</div><div style="font-size:14px;color:var(--text)" id="prof-phone">—</div></div>
+          <div><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Email</div><div style="font-size:14px;color:var(--text)" id="prof-email">—</div></div>
+          <div><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Member Since</div><div style="font-size:14px;color:var(--text)" id="prof-joined">—</div></div>
+          <div><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Status</div><div id="prof-status">—</div></div>
+        </div>
+      </div>
+
+      <!-- Change password card -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">Change Password</div></div>
+        <div id="pw-banner" style="display:none;padding:10px 13px;border-radius:8px;font-size:13px;margin-bottom:14px"></div>
+        <div class="fg"><label class="fl">Current Password</label><input class="fi" type="password" id="pw-old" placeholder="Enter current password"/></div>
+        <div class="frow">
+          <div class="fg"><label class="fl">New Password</label><input class="fi" type="password" id="pw-new" placeholder="Min 8 characters"/></div>
+          <div class="fg"><label class="fl">Confirm New Password</label><input class="fi" type="password" id="pw-confirm" placeholder="Repeat new password"/></div>
+        </div>
+        <button class="btn btn-primary" onclick="submitChangePassword()" id="pw-btn">Update Password</button>
+      </div>
+
+    </div>
+  </div>
 </main>
+
+<!-- EDIT PROFILE MODAL -->
+<div class="overlay" id="edit-profile-modal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">Edit Profile</div><button class="btn btn-ghost btn-sm" onclick="closeModal('edit-profile-modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="fg"><label class="fl">Full Name</label><input class="fi" id="ep-name" placeholder="Your full name"/></div>
+      <div class="fg"><label class="fl">Email</label><input class="fi" type="email" id="ep-email" placeholder="your@email.com"/></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('edit-profile-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitEditProfile()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHANGE USER PASSWORD MODAL -->
+<div class="overlay" id="chpw-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title">Change Password</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:2px" id="chpw-username"></div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('chpw-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="chpw-banner" style="display:none;padding:10px 13px;border-radius:8px;font-size:13px;margin-bottom:14px"></div>
+      <div class="fg"><label class="fl">New Password</label><input class="fi" type="password" id="chpw-new" placeholder="Min 8 characters"/></div>
+      <div class="fg"><label class="fl">Confirm Password</label><input class="fi" type="password" id="chpw-confirm" placeholder="Repeat new password"/></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('chpw-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitAdminChangePw()" id="chpw-btn">Set Password</button>
+    </div>
+  </div>
+</div>
 
 <!-- ADD USER MODAL -->
 <div class="overlay" id="user-modal">
@@ -337,11 +416,95 @@ function nav(page,el){
   document.getElementById('page-'+page).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   if(el)el.classList.add('active');
-  const titles={dashboard:'Dashboard',users:'User Management',classrooms:'Classrooms',posts:'Posts & Announcements'};
+  const titles={dashboard:'Dashboard',users:'User Management',classrooms:'Classrooms',posts:'Posts & Announcements',profile:'My Profile'};
   document.getElementById('page-title').textContent=titles[page]||page;
   if(page==='users')loadUsers();
   if(page==='classrooms')loadClassrooms();
   if(page==='posts')loadPosts();
+  if(page==='profile')loadProfile();
+}
+
+// ── PROFILE ──
+let currentUser = null;
+
+function loadProfile(){
+  if(!currentUser) return;
+  const u = currentUser;
+  const initials = u.full_name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  const roleLabel = {admin:'Administrator', educational_user:'Teacher / Staff', student:'Student'};
+  document.getElementById('prof-avi').textContent   = initials;
+  document.getElementById('prof-name').textContent  = u.full_name;
+  document.getElementById('prof-role').textContent  = roleLabel[u.role] || u.role;
+  document.getElementById('prof-phone').textContent = u.phone;
+  document.getElementById('prof-email').textContent = u.email || '—';
+  document.getElementById('prof-joined').textContent = u.created_at?.slice(0,10) || '—';
+  document.getElementById('prof-status').innerHTML  = '<span class="badge bg-green">Active</span>';
+  // clear password fields
+  ['pw-old','pw-new','pw-confirm'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('pw-banner').style.display='none';
+}
+
+function openEditProfile(){
+  document.getElementById('ep-name').value  = currentUser?.full_name || '';
+  document.getElementById('ep-email').value = currentUser?.email || '';
+  openModal('edit-profile-modal');
+}
+
+async function submitEditProfile(){
+  const full_name = document.getElementById('ep-name').value.trim();
+  const email     = document.getElementById('ep-email').value.trim();
+  if(!full_name){ toast('Name is required','error'); return; }
+  const d = await api('/users/'+currentUser.id, {
+    method:'PUT', body:JSON.stringify({full_name, email})
+  });
+  if(d.message){
+    toast('Profile updated!');
+    closeModal('edit-profile-modal');
+    // refresh current user data
+    const me = await api('/me');
+    if(me.user){
+      currentUser = me.user;
+      const initials = me.user.full_name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+      document.getElementById('nav-avi').textContent  = initials;
+      document.getElementById('nav-name').textContent = me.user.full_name;
+      loadProfile();
+    }
+  } else toast(d.error||'Failed','error');
+}
+
+async function submitChangePassword(){
+  const old_password = document.getElementById('pw-old').value;
+  const new_password = document.getElementById('pw-new').value;
+  const confirm      = document.getElementById('pw-confirm').value;
+  const banner       = document.getElementById('pw-banner');
+
+  banner.style.display='none';
+
+  if(!old_password || !new_password){ showPwBanner('All fields are required','error'); return; }
+  if(new_password.length < 8){ showPwBanner('New password must be at least 8 characters','error'); return; }
+  if(new_password !== confirm){ showPwBanner('New passwords do not match','error'); return; }
+
+  const btn = document.getElementById('pw-btn');
+  btn.innerHTML='<span class="spin"></span> Updating…'; btn.disabled=true;
+
+  const d = await api('/change-password',{
+    method:'POST', body:JSON.stringify({old_password, new_password})
+  });
+  btn.innerHTML='Update Password'; btn.disabled=false;
+
+  if(d.message){
+    showPwBanner('Password updated successfully','success');
+    ['pw-old','pw-new','pw-confirm'].forEach(id=>document.getElementById(id).value='');
+  } else showPwBanner(d.error||'Failed','error');
+}
+
+function showPwBanner(msg, type){
+  const b = document.getElementById('pw-banner');
+  b.style.display='block';
+  b.style.background = type==='success' ? 'rgba(45,212,160,.1)' : 'rgba(240,106,106,.1)';
+  b.style.border = `1px solid ${type==='success' ? 'rgba(45,212,160,.25)' : 'rgba(240,106,106,.25)'}`;
+  b.style.color  = type==='success' ? 'var(--green)' : '#f8a3a3';
+  b.textContent  = msg;
 }
 
 function openModal(id){document.getElementById(id).classList.add('open')}
@@ -387,6 +550,7 @@ function renderUsers(q=''){
       <td>${u.created_at?.slice(0,10)||'—'}</td>
       <td style="display:flex;gap:6px">
         <button class="btn btn-ghost btn-sm" onclick="toggleUser(${u.id})">${u.is_active?'Deactivate':'Activate'}</button>
+        <button class="btn btn-ghost btn-sm" onclick="openChangePw(${u.id},'${u.full_name.replace(/'/g,"\\'")}')">🔑 Password</button>
         <button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">Delete</button>
       </td>
     </tr>`).join('');
@@ -412,6 +576,45 @@ async function deleteUser(id){
   const d=await api('/users/'+id,{method:'DELETE'});
   if(d.message){toast(d.message);loadUsers();loadStats();}
   else toast(d.error||'Error','error');
+}
+
+// ── ADMIN CHANGE USER PASSWORD ──
+let changePwUserId = null;
+
+function openChangePw(id, name){
+  changePwUserId = id;
+  document.getElementById('chpw-username').textContent = name;
+  document.getElementById('chpw-new').value     = '';
+  document.getElementById('chpw-confirm').value = '';
+  document.getElementById('chpw-banner').style.display = 'none';
+  openModal('chpw-modal');
+}
+
+async function submitAdminChangePw(){
+  const password = document.getElementById('chpw-new').value;
+  const confirm  = document.getElementById('chpw-confirm').value;
+  if(!password){ showChpwBanner('Password is required','error'); return; }
+  if(password.length < 8){ showChpwBanner('Minimum 8 characters','error'); return; }
+  if(password !== confirm){ showChpwBanner('Passwords do not match','error'); return; }
+  const btn = document.getElementById('chpw-btn');
+  btn.innerHTML='<span class="spin"></span> Saving…'; btn.disabled=true;
+  const d = await api('/users/'+changePwUserId+'/password',{
+    method:'PATCH', body:JSON.stringify({password})
+  });
+  btn.innerHTML='Set Password'; btn.disabled=false;
+  if(d.message){
+    showChpwBanner('Password updated!','success');
+    setTimeout(()=>closeModal('chpw-modal'),1200);
+  } else showChpwBanner(d.error||'Failed','error');
+}
+
+function showChpwBanner(msg, type){
+  const b = document.getElementById('chpw-banner');
+  b.style.display    = 'block';
+  b.style.background = type==='success' ? 'rgba(45,212,160,.1)'  : 'rgba(240,106,106,.1)';
+  b.style.border     = `1px solid ${type==='success' ? 'rgba(45,212,160,.25)' : 'rgba(240,106,106,.25)'}`;
+  b.style.color      = type==='success' ? 'var(--green)' : '#f8a3a3';
+  b.textContent      = msg;
 }
 
 async function submitUser(){
@@ -692,6 +895,7 @@ async function init(){
   const d=await api('/me');
   if(!d.user||d.user.role!=='admin'){location.href='/';return;}
   const u=d.user;
+  currentUser = u;
   document.getElementById('nav-avi').textContent=u.full_name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
   document.getElementById('nav-name').textContent=u.full_name;
   await loadStats();

@@ -48,6 +48,7 @@ match (true) {
     $method === 'DELETE' && $base === '/api/users' && $id       => delete_user($id),
     $method === 'PATCH'  && $base === '/api/users' && $id && $sub === 'toggle' => toggle_user($id),
     $method === 'GET'    && $path === '/api/stats'              => get_stats(),
+    $method === 'PATCH' && $base === '/api/users' && $id && $sub === 'password' => admin_change_password($id),
 
     // Classrooms
     $method === 'GET'  && $path === '/api/classrooms'           => get_classrooms(),

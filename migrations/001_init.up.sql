@@ -120,15 +120,4 @@ CREATE TABLE IF NOT EXISTS posts (
     FOREIGN KEY (author_id)    REFERENCES users(id)       ON DELETE CASCADE,
 );
 
--- ── SESSIONS ─────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS sessions (
-    id          VARCHAR(128)  PRIMARY KEY,
-    user_id     INT UNSIGNED  NOT NULL,
-    ip          VARCHAR(45)   DEFAULT NULL,
-    user_agent  VARCHAR(255)  DEFAULT NULL,
-    created_at  TIMESTAMP     DEFAULT CURRENT_TIMESTAMP,
-    expires_at  TIMESTAMP     NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
 COMMIT;

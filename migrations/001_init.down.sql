@@ -21,9 +21,6 @@ DROP TABLE IF EXISTS posts ;
 -- ── CLASSROOMS ───────────────────────────────────────────────
 DROP TABLE IF EXISTS classrooms ;
 
--- ── SESSIONS ─────────────────────────────────────────────────
-DROP TABLE IF EXISTS sessions ;
-
 -- ── USERS ────────────────────────────────────────────────────
 DROP TABLE IF EXISTS users ;
 

@@ -7,28 +7,15 @@ function get_posts(): never
     require_auth();
     $user         = current_user();
     $db           = db();
-    $classroom_id = isset($_GET['classroom_id']) ? (int) $_GET['classroom_id'] : null;
 
-    if ($classroom_id) {
-        $stmt = $db->prepare(
-            'SELECT p.*,u.full_name as author_name,u.role as author_role,
-                    c.name as classroom_name
-             FROM posts p JOIN users u ON u.id=p.author_id
-             LEFT JOIN classrooms c ON c.id=p.classroom_id
-             WHERE p.classroom_id=? AND p.deleted_at IS NULL ORDER BY p.created_at DESC'
-        );
-        $stmt->bind_param('i', $classroom_id);
-    } else {
-        // All posts visible to this user
-        $stmt = $db->prepare(
-            'SELECT p.*,u.full_name as author_name,u.role as author_role,
-                    c.name as classroom_name
-             FROM posts p JOIN users u ON u.id=p.author_id
-             LEFT JOIN classrooms c ON c.id=p.classroom_id
+    // All posts visible to this user
+    $stmt = $db->prepare(
+        'SELECT p.*,u.full_name as author_name,u.role as author_role
+             FROM posts p 
+             JOIN users u ON u.id=p.author_id
              WHERE p.deleted_at IS NULL
              ORDER BY p.created_at DESC LIMIT 50'
-        );
-    }
+    );
     $stmt->execute();
     json_out(['posts' => $stmt->get_result()->fetch_all(MYSQLI_ASSOC)]);
 }
@@ -39,7 +26,6 @@ function create_post(): never
     $data         = body();
     $title        = trim($data['title']        ?? '');
     $body_text    = trim($data['body']         ?? '');
-    $classroom_id = isset($data['classroom_id']) ? (int) $data['classroom_id'] : null;
 
     if (!$title || !$body_text) {
         json_error('title and body are required');
@@ -47,9 +33,9 @@ function create_post(): never
 
     $author_id = current_user()['id'];
     $stmt = db()->prepare(
-        'INSERT INTO posts (author_id,classroom_id,title,body) VALUES (?,?,?,?)'
+        'INSERT INTO posts (author_id,title,body) VALUES (?,?,?)'
     );
-    $stmt->bind_param('iiss', $author_id, $classroom_id, $title, $body_text);
+    $stmt->bind_param('iss', $author_id, $title, $body_text);
     $stmt->execute();
     json_out(['message' => 'Post created', 'id' => $stmt->insert_id], 201);
 }
