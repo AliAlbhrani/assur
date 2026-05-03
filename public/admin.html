@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Assur — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080a10;--bg2:#0e1118;--bg3:#151922;--bg4:#1c2130;
+  --border:#222736;--border2:#2e3448;
+  --text:#e8eaf2;--text2:#8b92ab;--text3:#4a5068;
+  --accent:#4f6ef7;--accent2:#7b96ff;
+  --green:#2dd4a0;--red:#f06a6a;--amber:#f0a940;--purple:#a78bfa;
+  --sidebar:230px;--radius:10px;--radius-lg:14px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;font-size:14px}
+/* sidebar */
+.sidebar{width:var(--sidebar);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100}
+.logo{padding:22px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.logo-mark{width:36px;height:36px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:#fff}
+.logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--text)}
+.logo-text span{color:var(--accent2)}
+.nav{flex:1;padding:14px 10px;overflow-y:auto}
+.nav-label{font-size:10px;font-weight:500;letter-spacing:1px;color:var(--text3);padding:0 8px;margin:12px 0 6px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;color:var(--text2);font-size:13px;transition:.15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;font-family:'DM Sans',sans-serif}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:rgba(79,110,247,.12);color:var(--accent2);border:1px solid rgba(79,110,247,.2)}
+.nav-item svg{width:16px;height:16px;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--accent);color:#fff;font-size:10px;padding:1px 7px;border-radius:20px}
+.sidebar-footer{padding:14px 10px;border-top:1px solid var(--border)}
+.user-row{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;cursor:pointer}
+.user-row:hover{background:var(--bg3)}
+.avi{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--purple));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0}
+.user-meta .nm{font-size:13px;font-weight:500}
+.user-meta .rl{font-size:11px;color:var(--text3)}
+/* main */
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 26px;height:58px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.page-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.topbar-actions{display:flex;gap:8px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 15px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;transition:.15s}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent2)}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2)}.btn-ghost:hover{background:var(--bg3);color:var(--text)}
+.btn-danger{background:rgba(240,106,106,.1);color:var(--red);border:1px solid rgba(240,106,106,.2)}.btn-danger:hover{background:rgba(240,106,106,.2)}
+.btn-sm{padding:5px 11px;font-size:12px}
+.content{padding:26px;flex:1}
+/* pages */
+.page{display:none}.page.active{display:block}
+/* stats */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;position:relative;overflow:hidden}
+.stat-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.stat-val{font-family:'Syne',sans-serif;font-size:30px;font-weight:700}
+.stat-icon{position:absolute;top:16px;right:16px;width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.ic-blue{background:rgba(79,110,247,.12);color:var(--accent2)}
+.ic-green{background:rgba(45,212,160,.1);color:var(--green)}
+.ic-amber{background:rgba(240,169,64,.1);color:var(--amber)}
+.ic-purple{background:rgba(167,139,250,.1);color:var(--purple)}
+/* card */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:600}
+/* table */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;padding:9px 12px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
+td{padding:11px 12px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg3)}
+.td-name{color:var(--text);font-weight:500}
+/* badges */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500}
+.bg-green{background:rgba(45,212,160,.1);color:var(--green)}
+.bg-amber{background:rgba(240,169,64,.1);color:var(--amber)}
+.bg-blue{background:rgba(79,110,247,.12);color:var(--accent2)}
+.bg-purple{background:rgba(167,139,250,.1);color:var(--purple)}
+.bg-red{background:rgba(240,106,106,.1);color:var(--red)}
+.bg-gray{background:var(--bg4);color:var(--text2)}
+/* filters */
+.filters{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.search{display:flex;align-items:center;gap:7px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 12px;flex:1;max-width:280px}
+.search input{background:none;border:none;outline:none;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;width:100%}
+.search input::placeholder{color:var(--text3)}
+.fsel{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:7px 11px;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none}
+/* modal */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:300;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);width:460px;max-width:95vw;max-height:90vh;overflow-y:auto}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)}
+.modal-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.modal-body{padding:22px}
+.modal-foot{display:flex;justify-content:flex-end;gap:9px;padding:14px 22px;border-top:1px solid var(--border)}
+.fg{margin-bottom:14px}
+.fl{display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.fi{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 11px;border-radius:8px;font-size:13.5px;font-family:'DM Sans',sans-serif;outline:none;transition:.15s}
+.fi:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,110,247,.1)}
+.fi::placeholder{color:var(--text3)}
+select.fi{cursor:pointer}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+/* toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;color:var(--text);z-index:500;display:flex;align-items:center;gap:9px;animation:slideUp .25s ease;max-width:320px}
+.toast.success{border-color:rgba(45,212,160,.3);color:var(--green)}
+.toast.error{border-color:rgba(240,106,106,.3);color:var(--red)}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+/* empty */
+.empty{text-align:center;padding:48px;color:var(--text3)}
+.empty svg{margin:0 auto 14px;opacity:.3;display:block}
+/* loading spinner */
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle}
+@keyframes sp{to{transform:rotate(360deg)}}
+/* scrollbar */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">A</div>
+    <div class="logo-text">as<span>sur</span></div>
+  </div>
+  <nav class="nav">
+    <div class="nav-label">Overview</div>
+    <button class="nav-item active" onclick="nav('dashboard',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </button>
+    <div class="nav-label">Management</div>
+    <button class="nav-item" onclick="nav('users',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Users <span class="nav-badge" id="nb-users">0</span>
+    </button>
+    <button class="nav-item" onclick="nav('classrooms',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Classrooms
+    </button>
+    <div class="nav-label">Content</div>
+    <button class="nav-item" onclick="nav('posts',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Posts
+    </button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avi" id="nav-avi">A</div>
+      <div class="user-meta">
+        <div class="nm" id="nav-name">Admin</div>
+        <div class="rl">Administrator</div>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:8px;justify-content:center" onclick="logout()">Sign out</button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="page-title" id="page-title">Dashboard</div>
+    <div class="topbar-actions">
+      <button class="btn btn-primary btn-sm" onclick="openModal('user-modal')">+ Add User</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="page-dashboard" class="page active content">
+    <div class="stats-grid">
+      <div class="stat"><div class="stat-icon ic-amber">👥</div><div class="stat-label">Teachers</div><div class="stat-val" id="st-teachers">—</div></div>
+      <div class="stat"><div class="stat-icon ic-blue">🎓</div><div class="stat-label">Students</div><div class="stat-val" id="st-students">—</div></div>
+      <div class="stat"><div class="stat-icon ic-green">🏫</div><div class="stat-label">Classrooms</div><div class="stat-val" id="st-classrooms">—</div></div>
+      <div class="stat"><div class="stat-icon ic-purple">📄</div><div class="stat-label">Posts</div><div class="stat-val" id="st-posts">—</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Recent Users</div><button class="btn btn-ghost btn-sm" onclick="nav('users',null)">View all</button></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Role</th><th>Status</th></tr></thead><tbody id="dash-users"></tbody></table></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Recent Posts</div><button class="btn btn-ghost btn-sm" onclick="nav('posts',null)">View all</button></div>
+        <div id="dash-posts"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- USERS -->
+  <div id="page-users" class="page content">
+    <div class="filters">
+      <div class="search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search users…" oninput="renderUsers(this.value)"/></div>
+      <select class="fsel" id="role-filter" onchange="renderUsers()">
+        <option value="">All Roles</option>
+        <option value="admin">Admin</option>
+        <option value="educational_user">Teacher</option>
+        <option value="student">Student</option>
+      </select>
+      <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="openModal('user-modal')">+ Add User</button>
+    </div>
+    <div class="card" style="padding:0">
+      <div class="tbl-wrap">
+        <table><thead><tr><th>#</th><th>Full Name</th><th>Phone</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th></th></tr></thead>
+        <tbody id="users-body"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLASSROOMS -->
+  <div id="page-classrooms" class="page content">
+    <div class="filters">
+      <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="openModal('cls-modal')">+ New Classroom</button>
+    </div>
+    <div id="cls-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px"></div>
+  </div>
+
+  <!-- POSTS -->
+  <div id="page-posts" class="page content">
+    <div class="filters">
+      <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="openModal('post-modal')">+ New Post</button>
+    </div>
+    <div id="posts-list" style="display:flex;flex-direction:column;gap:14px"></div>
+  </div>
+</main>
+
+<!-- ADD USER MODAL -->
+<div class="overlay" id="user-modal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">Add New User</div><button class="btn btn-ghost btn-sm" onclick="closeModal('user-modal')">✕</button></div>
+    <div class="modal-body">
+      <div id="user-form-err" style="display:none;background:rgba(240,106,106,.1);border:1px solid rgba(240,106,106,.25);color:#f8a3a3;padding:10px 13px;border-radius:8px;font-size:13px;margin-bottom:14px"></div>
+      <div class="frow"><div class="fg"><label class="fl">Full Name</label><input class="fi" id="uf-name" placeholder="Full name"/></div><div class="fg"><label class="fl">Phone</label><input class="fi" id="uf-phone" placeholder="Phone number"/></div></div>
+      <div class="fg"><label class="fl">Email (optional)</label><input class="fi" id="uf-email" type="email" placeholder="email@example.com"/></div>
+      <div class="frow"><div class="fg"><label class="fl">Password</label><input class="fi" id="uf-pass" type="password" placeholder="Min 8 characters"/></div>
+      <div class="fg"><label class="fl">Role</label><select class="fi" id="uf-role"><option value="student">Student</option><option value="educational_user">Teacher / Staff</option><option value="admin">Admin</option></select></div></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('user-modal')">Cancel</button><button class="btn btn-primary" onclick="submitUser()" id="user-submit-btn">Create User</button></div>
+  </div>
+</div>
+
+<!-- ADD CLASSROOM MODAL -->
+<div class="overlay" id="cls-modal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">New Classroom</div><button class="btn btn-ghost btn-sm" onclick="closeModal('cls-modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="fg"><label class="fl">Classroom Name</label><input class="fi" id="cl-name" placeholder="e.g. Grade 10 — A"/></div>
+      <div class="frow"><div class="fg"><label class="fl">Grade / Level</label><input class="fi" id="cl-grade" placeholder="e.g. Grade 10"/></div></div>
+      <div class="fg"><label class="fl">Description</label><textarea class="fi" id="cl-desc" rows="3" placeholder="Optional description…" style="resize:vertical"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('cls-modal')">Cancel</button><button class="btn btn-primary" onclick="submitClassroom()">Create</button></div>
+  </div>
+</div>
+
+<!-- ADD POST MODAL -->
+<div class="overlay" id="post-modal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">New Post</div><button class="btn btn-ghost btn-sm" onclick="closeModal('post-modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="fg"><label class="fl">Title</label><input class="fi" id="pt-title" placeholder="Post title"/></div>
+      <div class="fg"><label class="fl">Body</label><textarea class="fi" id="pt-body" rows="5" placeholder="Write your announcement…" style="resize:vertical"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('post-modal')">Cancel</button><button class="btn btn-primary" onclick="submitPost()">Publish</button></div>
+  </div>
+</div>
+
+<script>
+const API='/api';
+let allUsers=[],allPosts=[],allClassrooms=[];
+
+const roleBadge={admin:'<span class="badge bg-amber">Admin</span>',educational_user:'<span class="badge bg-blue">Teacher</span>',student:'<span class="badge bg-green">Student</span>'};
+const roleLabel={admin:'Admin',educational_user:'Teacher',student:'Student'};
+
+async function api(path,opts={}){
+  const r=await fetch(API+path,{headers:{'Content-Type':'application/json'},...opts});
+  return r.json();
+}
+
+function toast(msg,type='success'){
+  const t=document.createElement('div');
+  t.className=`toast ${type}`;
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3000);
+}
+
+function nav(page,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el)el.classList.add('active');
+  const titles={dashboard:'Dashboard',users:'User Management',classrooms:'Classrooms',posts:'Posts & Announcements'};
+  document.getElementById('page-title').textContent=titles[page]||page;
+  if(page==='users')loadUsers();
+  if(page==='classrooms')loadClassrooms();
+  if(page==='posts')loadPosts();
+}
+
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')}));
+
+// ── STATS ──
+async function loadStats(){
+  const d=await api('/stats');
+  if(d.stats){
+    document.getElementById('st-teachers').textContent=d.stats.educational_user||0;
+    document.getElementById('st-students').textContent=d.stats.student||0;
+    document.getElementById('st-classrooms').textContent=d.stats.classrooms||0;
+    document.getElementById('st-posts').textContent=d.stats.posts||0;
+    document.getElementById('nb-users').textContent=(d.stats.admin||0)+(d.stats.educational_user||0)+(d.stats.student||0);
+  }
+}
+
+// ── USERS ──
+async function loadUsers(){
+  const d=await api('/users');
+  allUsers=d.users||[];
+  renderUsers();
+}
+
+function renderUsers(q=''){
+  const filter=document.getElementById('role-filter')?.value||'';
+  let list=allUsers.filter(u=>{
+    const matchQ=!q||(u.full_name+u.phone+(u.email||'')).toLowerCase().includes(q.toLowerCase());
+    const matchR=!filter||u.role===filter;
+    return matchQ&&matchR;
+  });
+  const body=document.getElementById('users-body');
+  if(!list.length){body.innerHTML=`<tr><td colspan="8"><div class="empty">No users found</div></td></tr>`;return;}
+  body.innerHTML=list.map(u=>`
+    <tr>
+      <td>${u.id}</td>
+      <td><div class="td-name">${u.full_name}</div></td>
+      <td>${u.phone}</td>
+      <td>${u.email||'—'}</td>
+      <td>${roleBadge[u.role]||u.role}</td>
+      <td><span class="badge ${u.is_active?'bg-green':'bg-red'}">${u.is_active?'Active':'Inactive'}</span></td>
+      <td>${u.created_at?.slice(0,10)||'—'}</td>
+      <td style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="toggleUser(${u.id})">${u.is_active?'Deactivate':'Activate'}</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id})">Delete</button>
+      </td>
+    </tr>`).join('');
+
+  // update dash recent users
+  const dashBody=document.getElementById('dash-users');
+  if(dashBody){
+    dashBody.innerHTML=allUsers.slice(0,6).map(u=>`
+      <tr><td><div class="td-name">${u.full_name}</div><div style="font-size:11px;color:var(--text3)">${u.phone}</div></td>
+      <td>${roleBadge[u.role]||u.role}</td>
+      <td><span class="badge ${u.is_active?'bg-green':'bg-red'}">${u.is_active?'Active':'Inactive'}</span></td></tr>`).join('');
+  }
+}
+
+async function toggleUser(id){
+  const d=await api('/users/'+id+'/toggle',{method:'PATCH'});
+  if(d.message){toast(d.message);loadUsers();}
+  else toast(d.error||'Error','error');
+}
+
+async function deleteUser(id){
+  if(!confirm('Delete this user? This cannot be undone.'))return;
+  const d=await api('/users/'+id,{method:'DELETE'});
+  if(d.message){toast(d.message);loadUsers();loadStats();}
+  else toast(d.error||'Error','error');
+}
+
+async function submitUser(){
+  const btn=document.getElementById('user-submit-btn');
+  const err=document.getElementById('user-form-err');
+  err.style.display='none';
+  btn.innerHTML='<span class="spin"></span> Creating…';btn.disabled=true;
+  const d=await api('/register',{method:'POST',body:JSON.stringify({
+    full_name:document.getElementById('uf-name').value,
+    phone:document.getElementById('uf-phone').value,
+    email:document.getElementById('uf-email').value,
+    password:document.getElementById('uf-pass').value,
+    role:document.getElementById('uf-role').value,
+  })});
+  btn.innerHTML='Create User';btn.disabled=false;
+  if(d.user){toast('User created!');closeModal('user-modal');loadUsers();loadStats();}
+  else{err.style.display='block';err.textContent=d.error||'Failed';}
+}
+
+// ── CLASSROOMS ──
+async function loadClassrooms(){
+  const d=await api('/classrooms');
+  allClassrooms=d.classrooms||[];
+  const grid=document.getElementById('cls-grid');
+  if(!allClassrooms.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1">No classrooms yet.</div>';return;}
+  grid.innerHTML=allClassrooms.map(c=>`
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <div>
+          <div style="font-family:Syne,sans-serif;font-size:15px;font-weight:700;margin-bottom:3px">${c.name}</div>
+          <div style="font-size:12px;color:var(--text3)">${c.grade||'No grade specified'}</div>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="deleteClassroom(${c.id})">Delete</button>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:10px">
+        <span class="badge bg-blue">👨‍🏫 ${c.teacher_count} teachers</span>
+        <span class="badge bg-green">🎓 ${c.student_count} students</span>
+      </div>
+      ${c.description?`<p style="font-size:12px;color:var(--text2);margin-top:10px">${c.description}</p>`:''}
+    </div>`).join('');
+}
+
+async function submitClassroom(){
+  const d=await api('/classrooms',{method:'POST',body:JSON.stringify({
+    name:document.getElementById('cl-name').value,
+    grade:document.getElementById('cl-grade').value,
+    description:document.getElementById('cl-desc').value,
+  })});
+  if(d.id){toast('Classroom created!');closeModal('cls-modal');loadClassrooms();loadStats();}
+  else toast(d.error||'Failed','error');
+}
+
+async function deleteClassroom(id){
+  if(!confirm('Delete this classroom?'))return;
+  const d=await api('/classrooms/'+id,{method:'DELETE'});
+  if(d.message){toast(d.message);loadClassrooms();loadStats();}
+  else toast(d.error||'Error','error');
+}
+
+// ── POSTS ──
+async function loadPosts(){
+  const d=await api('/posts');
+  allPosts=d.posts||[];
+  const list=document.getElementById('posts-list');
+  if(!allPosts.length){list.innerHTML='<div class="empty">No posts yet.</div>';return;}
+  list.innerHTML=allPosts.map(p=>`
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-family:Syne,sans-serif;font-size:15px;font-weight:700;margin-bottom:4px">${p.title}</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:10px">By ${p.author_name} · ${p.created_at?.slice(0,10)}</div>
+          <p style="font-size:13.5px;color:var(--text2);line-height:1.6">${p.body}</p>
+        </div>
+        <button class="btn btn-danger btn-sm" style="margin-left:16px;flex-shrink:0" onclick="deletePost(${p.id})">Delete</button>
+      </div>
+    </div>`).join('');
+
+  // dash posts
+  const dp=document.getElementById('dash-posts');
+  if(dp)dp.innerHTML=allPosts.slice(0,4).map(p=>`
+    <div style="padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="font-size:13px;font-weight:500;color:var(--text)">${p.title}</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:2px">${p.author_name} · ${p.created_at?.slice(0,10)}</div>
+    </div>`).join('');
+}
+
+async function submitPost(){
+  const d=await api('/posts',{method:'POST',body:JSON.stringify({
+    title:document.getElementById('pt-title').value,
+    body:document.getElementById('pt-body').value,
+  })});
+  if(d.id){toast('Post published!');closeModal('post-modal');loadPosts();loadStats();}
+  else toast(d.error||'Failed','error');
+}
+
+async function deletePost(id){
+  if(!confirm('Delete this post?'))return;
+  const d=await api('/posts/'+id,{method:'DELETE'});
+  if(d.message){toast(d.message);loadPosts();loadStats();}
+  else toast(d.error||'Error','error');
+}
+
+async function logout(){
+  await api('/logout',{method:'POST'});
+  location.href='/';
+}
+
+// ── INIT ──
+async function init(){
+  const d=await api('/me');
+  if(!d.user||d.user.role!=='admin'){location.href='/';return;}
+  const u=d.user;
+  document.getElementById('nav-avi').textContent=u.full_name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('nav-name').textContent=u.full_name;
+  await loadStats();
+  await loadUsers();
+  await loadPosts();
+}
+
+init();
+</script>
+</body>
+</html>

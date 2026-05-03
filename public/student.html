@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Assur — Student</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080a10;--bg2:#0e1118;--bg3:#151922;--bg4:#1c2130;
+  --border:#222736;--border2:#2e3448;
+  --text:#e8eaf2;--text2:#8b92ab;--text3:#4a5068;
+  --accent:#a78bfa;--accent2:#c4b5fd;
+  --green:#2dd4a0;--red:#f06a6a;--amber:#f0a940;--blue:#4f6ef7;
+  --sidebar:230px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;font-size:14px}
+.sidebar{width:var(--sidebar);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100}
+.logo{padding:22px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.logo-mark{width:36px;height:36px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:#fff}
+.logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:18px}.logo-text span{color:var(--accent)}
+.nav{flex:1;padding:14px 10px;overflow-y:auto}
+.nav-label{font-size:10px;font-weight:500;letter-spacing:1px;color:var(--text3);padding:0 8px;margin:12px 0 6px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;color:var(--text2);font-size:13px;transition:.15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;font-family:'DM Sans',sans-serif}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:rgba(167,139,250,.1);color:var(--accent);border:1px solid rgba(167,139,250,.2)}
+.nav-item svg{width:16px;height:16px;flex-shrink:0}
+.sidebar-footer{padding:14px 10px;border-top:1px solid var(--border)}
+.user-row{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px}
+.avi{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--blue));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0}
+.user-meta .nm{font-size:13px;font-weight:500}.user-meta .rl{font-size:11px;color:var(--text3)}
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 26px;height:58px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.page-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 15px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;transition:.15s}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2)}.btn-ghost:hover{background:var(--bg3);color:var(--text)}
+.btn-sm{padding:5px 11px;font-size:12px}
+.content{padding:26px;flex:1}
+.page{display:none}.page.active{display:block}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:600}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;padding:9px 12px;border-bottom:1px solid var(--border);text-align:left}
+td{padding:11px 12px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg3)}
+.td-name{color:var(--text);font-weight:500}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500}
+.bg-green{background:rgba(45,212,160,.1);color:var(--green)}.bg-blue{background:rgba(79,110,247,.12);color:var(--blue)}
+.bg-amber{background:rgba(240,169,64,.1);color:var(--amber)}.bg-red{background:rgba(240,106,106,.1);color:var(--red)}
+.bg-purple{background:rgba(167,139,250,.1);color:var(--accent)}.bg-gray{background:var(--bg4);color:var(--text2)}
+.empty{text-align:center;padding:40px;color:var(--text3)}
+.post-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px}
+/* grade pill */
+.grade-pill{display:inline-block;padding:4px 12px;border-radius:20px;font-family:Syne,sans-serif;font-weight:700;font-size:14px}
+.grade-a{background:rgba(45,212,160,.12);color:var(--green)}
+.grade-b{background:rgba(79,110,247,.12);color:var(--blue)}
+.grade-c{background:rgba(240,169,64,.1);color:var(--amber)}
+.grade-d{background:rgba(240,106,106,.1);color:var(--red)}
+/* attendance summary */
+.att-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.att-card{border-radius:12px;padding:14px;text-align:center}
+.att-label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;opacity:.7}
+.att-val{font-family:Syne,sans-serif;font-size:26px;font-weight:700}
+/* progress bar */
+.prog-wrap{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-top:6px}
+.prog-fill{height:100%;border-radius:3px}
+/* stars */
+.stars{color:var(--amber);font-size:15px;letter-spacing:2px}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">A</div>
+    <div class="logo-text">as<span>sur</span></div>
+  </div>
+  <nav class="nav">
+    <div class="nav-label">My Portal</div>
+    <button class="nav-item active" onclick="nav('dashboard',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Overview
+    </button>
+    <button class="nav-item" onclick="nav('grades',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>My Grades
+    </button>
+    <button class="nav-item" onclick="nav('ratings',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>My Ratings
+    </button>
+    <button class="nav-item" onclick="nav('attendance',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Attendance
+    </button>
+    <div class="nav-label">School</div>
+    <button class="nav-item" onclick="nav('posts',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Announcements
+    </button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row"><div class="avi" id="nav-avi">S</div><div class="user-meta"><div class="nm" id="nav-name">Student</div><div class="rl">Student</div></div></div>
+    <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:8px;justify-content:center" onclick="logout()">Sign out</button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="page-title" id="page-title">Overview</div>
+  </div>
+
+  <!-- DASHBOARD / OVERVIEW -->
+  <div id="page-dashboard" class="page active content">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px">
+      <div class="card" style="text-align:center">
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Average Score</div>
+        <div style="font-family:Syne,sans-serif;font-size:32px;font-weight:800;color:var(--accent)" id="avg-score">—</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">out of 100</div>
+      </div>
+      <div class="card" style="text-align:center">
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Subjects</div>
+        <div style="font-family:Syne,sans-serif;font-size:32px;font-weight:800;color:var(--blue)" id="subj-count">—</div>
+      </div>
+      <div class="card" style="text-align:center">
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Attendance</div>
+        <div style="font-family:Syne,sans-serif;font-size:32px;font-weight:800;color:var(--green)" id="att-rate">—</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">present rate</div>
+      </div>
+      <div class="card" style="text-align:center">
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">My Rating</div>
+        <div style="font-family:Syne,sans-serif;font-size:32px;font-weight:800;color:var(--amber)" id="avg-rating">—</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">avg stars</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:18px">
+      <!-- Recent grades -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">Recent Grades</div><button class="btn btn-ghost btn-sm" onclick="nav('grades',null)">View all</button></div>
+        <div id="dash-grades"></div>
+      </div>
+      <!-- Classrooms -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">My Classrooms</div></div>
+        <div id="dash-cls"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRADES -->
+  <div id="page-grades" class="page content">
+    <div class="card" style="padding:0">
+      <table>
+        <thead><tr><th>Subject</th><th>Classroom</th><th>Score</th><th>Grade</th><th>Label</th><th>Teacher</th><th>Date</th></tr></thead>
+        <tbody id="grades-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- RATINGS -->
+  <div id="page-ratings" class="page content">
+    <div class="card" style="padding:0">
+      <table>
+        <thead><tr><th>Teacher</th><th>Classroom</th><th>Stars</th><th>Comment</th><th>Date</th></tr></thead>
+        <tbody id="ratings-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ATTENDANCE -->
+  <div id="page-attendance" class="page content">
+    <div class="att-summary">
+      <div class="att-card" style="background:rgba(45,212,160,.08)">
+        <div class="att-label" style="color:var(--green)">Present</div>
+        <div class="att-val" style="color:var(--green)" id="att-present">0</div>
+      </div>
+      <div class="att-card" style="background:rgba(240,106,106,.08)">
+        <div class="att-label" style="color:var(--red)">Absent</div>
+        <div class="att-val" style="color:var(--red)" id="att-absent">0</div>
+      </div>
+      <div class="att-card" style="background:rgba(240,169,64,.08)">
+        <div class="att-label" style="color:var(--amber)">Late</div>
+        <div class="att-val" style="color:var(--amber)" id="att-late">0</div>
+      </div>
+      <div class="att-card" style="background:rgba(167,139,250,.08)">
+        <div class="att-label" style="color:var(--accent)">Excused</div>
+        <div class="att-val" style="color:var(--accent)" id="att-excused">0</div>
+      </div>
+    </div>
+    <div class="card" style="padding:0">
+      <table>
+        <thead><tr><th>Date</th><th>Classroom</th><th>Status</th><th>Marked By</th><th>Notes</th></tr></thead>
+        <tbody id="att-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ANNOUNCEMENTS / POSTS -->
+  <div id="page-posts" class="page content">
+    <div id="posts-list"></div>
+  </div>
+</main>
+
+<script>
+const API='/api';
+let myId=null;
+
+async function api(path,opts={}){
+  const r=await fetch(API+path,{headers:{'Content-Type':'application/json'},...opts});
+  return r.json();
+}
+
+function nav(page,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el)el.classList.add('active');
+  const titles={dashboard:'Overview',grades:'My Grades',ratings:'My Ratings',attendance:'Attendance',posts:'Announcements'};
+  document.getElementById('page-title').textContent=titles[page]||page;
+  if(page==='grades')loadGrades();
+  if(page==='ratings')loadRatings();
+  if(page==='attendance')loadAttendance();
+  if(page==='posts')loadPosts();
+}
+
+function gradeLetter(score,max){
+  const pct=(score/max)*100;
+  if(pct>=90)return{letter:'A',cls:'grade-a'};
+  if(pct>=75)return{letter:'B',cls:'grade-b'};
+  if(pct>=60)return{letter:'C',cls:'grade-c'};
+  return{letter:'D',cls:'grade-d'};
+}
+function stars(n){return'★'.repeat(n)+'☆'.repeat(5-n)}
+
+async function loadGrades(){
+  if(!myId)return;
+  const d=await api(`/students/${myId}/grades`);
+  const list=d.grades||[];
+  const body=document.getElementById('grades-body');
+  if(!list.length){body.innerHTML=`<tr><td colspan="7"><div class="empty">No grades yet</div></td></tr>`;return;}
+  body.innerHTML=list.map(g=>{
+    const{letter,cls}=gradeLetter(g.score,g.max_score);
+    const pct=Math.round((g.score/g.max_score)*100);
+    return `<tr>
+      <td class="td-name">${g.subject_name}</td>
+      <td>${g.classroom_name}</td>
+      <td>
+        <div>${g.score} / ${g.max_score}</div>
+        <div class="prog-wrap" style="width:80px"><div class="prog-fill" style="width:${pct}%;background:var(--accent)"></div></div>
+      </td>
+      <td><span class="grade-pill ${cls}">${letter}</span></td>
+      <td>${g.label||'—'}</td>
+      <td>${g.teacher_name||'—'}</td>
+      <td>${g.graded_at?.slice(0,10)||'—'}</td>
+    </tr>`;
+  }).join('');
+  return list;
+}
+
+async function loadRatings(){
+  if(!myId)return;
+  const d=await api(`/students/${myId}/ratings`);
+  const list=d.ratings||[];
+  const body=document.getElementById('ratings-body');
+  if(!list.length){body.innerHTML=`<tr><td colspan="5"><div class="empty">No ratings yet</div></td></tr>`;return;}
+  body.innerHTML=list.map(r=>`<tr>
+    <td class="td-name">${r.teacher_name}</td>
+    <td>${r.classroom_name}</td>
+    <td><span class="stars">${stars(r.score)}</span></td>
+    <td style="color:var(--text2)">${r.comment||'—'}</td>
+    <td>${r.rated_at?.slice(0,10)||'—'}</td>
+  </tr>`).join('');
+  return list;
+}
+
+async function loadAttendance(){
+  if(!myId)return;
+  const d=await api(`/students/${myId}/attendance`);
+  const list=d.attendance||[];
+  const statusBadge={present:'bg-green',absent:'bg-red',late:'bg-amber',excused:'bg-purple'};
+  const counts={present:0,absent:0,late:0,excused:0};
+  list.forEach(a=>{if(counts[a.status]!==undefined)counts[a.status]++;});
+  document.getElementById('att-present').textContent=counts.present;
+  document.getElementById('att-absent').textContent=counts.absent;
+  document.getElementById('att-late').textContent=counts.late;
+  document.getElementById('att-excused').textContent=counts.excused;
+  const total=list.length;
+  const rate=total?Math.round((counts.present/total)*100):0;
+  document.getElementById('att-rate').textContent=rate+'%';
+
+  const body=document.getElementById('att-body');
+  if(!list.length){body.innerHTML=`<tr><td colspan="5"><div class="empty">No attendance records yet</div></td></tr>`;return;}
+  body.innerHTML=list.map(a=>`<tr>
+    <td class="td-name">${a.date}</td>
+    <td>${a.classroom_name}</td>
+    <td><span class="badge ${statusBadge[a.status]||'bg-gray'}">${a.status}</span></td>
+    <td>${a.marked_by_name}</td>
+    <td>${a.notes||'—'}</td>
+  </tr>`).join('');
+  return{counts,rate};
+}
+
+async function loadPosts(){
+  const d=await api('/posts');
+  const list=d.posts||[];
+  const el=document.getElementById('posts-list');
+  if(!list.length){el.innerHTML='<div class="empty">No announcements yet</div>';return;}
+  el.innerHTML=list.map(p=>`
+    <div class="post-card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--blue));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff">${p.author_name?.split(' ').map(n=>n[0]).join('').slice(0,2)||'?'}</div>
+        <div>
+          <div style="font-size:12px;font-weight:500;color:var(--text)">${p.author_name}</div>
+          <div style="font-size:11px;color:var(--text3)">${p.created_at?.slice(0,10)}</div>
+        </div>
+        ${p.classroom_name?`<span class="badge bg-purple" style="margin-left:auto">${p.classroom_name}</span>`:'<span class="badge bg-gray" style="margin-left:auto">School-wide</span>'}
+      </div>
+      <div style="font-family:Syne,sans-serif;font-size:16px;font-weight:700;margin-bottom:8px">${p.title}</div>
+      <p style="font-size:13.5px;color:var(--text2);line-height:1.7">${p.body}</p>
+    </div>`).join('');
+}
+
+async function logout(){
+  await api('/logout',{method:'POST'});location.href='/';
+}
+
+async function init(){
+  const d=await api('/me');
+  if(!d.user||d.user.role!=='student'){location.href='/';return;}
+  const u=d.user;
+  myId=u.id;
+  document.getElementById('nav-avi').textContent=u.full_name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('nav-name').textContent=u.full_name;
+
+  // load all data for dashboard
+  const [grades,ratings,att,cls]=await Promise.all([
+    loadGrades(),
+    loadRatings(),
+    loadAttendance(),
+    api('/classrooms'),
+  ]);
+
+  // compute averages
+  const gl=grades||[];
+  if(gl.length){
+    const avg=gl.reduce((s,g)=>s+(g.score/g.max_score)*100,0)/gl.length;
+    document.getElementById('avg-score').textContent=Math.round(avg)+'%';
+    const subjects=[...new Set(gl.map(g=>g.subject_name))];
+    document.getElementById('subj-count').textContent=subjects.length;
+  } else {
+    document.getElementById('avg-score').textContent='—';
+    document.getElementById('subj-count').textContent='0';
+  }
+
+  const rl=ratings||[];
+  if(rl.length){
+    const avgR=(rl.reduce((s,r)=>s+r.score,0)/rl.length).toFixed(1);
+    document.getElementById('avg-rating').textContent=avgR+'★';
+  }
+
+  // recent grades on dashboard
+  const dashGrades=document.getElementById('dash-grades');
+  if(gl.length){
+    dashGrades.innerHTML=gl.slice(0,5).map(g=>{
+      const{letter,cls2}=gradeLetter(g.score,g.max_score);
+      const pct=Math.round((g.score/g.max_score)*100);
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border)">
+        <div><div style="font-size:13px;font-weight:500;color:var(--text)">${g.subject_name}</div><div style="font-size:11px;color:var(--text3)">${g.classroom_name}</div></div>
+        <div style="text-align:right"><div style="font-family:Syne,sans-serif;font-weight:700;color:var(--accent)">${g.score}/${g.max_score}</div>
+        <div class="prog-wrap" style="width:60px;margin-top:4px;margin-left:auto"><div class="prog-fill" style="width:${pct}%;background:var(--accent)"></div></div></div>
+      </div>`;
+    }).join('');
+  } else dashGrades.innerHTML='<div class="empty">No grades yet</div>';
+
+  // classrooms
+  const clsList=(cls.classrooms||[]);
+  const dashCls=document.getElementById('dash-cls');
+  dashCls.innerHTML=clsList.length
+    ?clsList.map(c=>`<div style="padding:10px 0;border-bottom:1px solid var(--border)"><div style="font-size:13px;font-weight:500;color:var(--text)">${c.name}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${c.grade||''}</div></div>`).join('')
+    :'<div class="empty">Not assigned to any classroom yet</div>';
+
+  await loadPosts();
+}
+init();
+</script>
+</body>
+</html>

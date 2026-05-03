@@ -20,11 +20,6 @@ CREATE TABLE users (
     updated_at  TIMESTAMP     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Default admin (password: Admin@1234)
-INSERT INTO users (full_name, phone, email, password, role) VALUES
-('Super Admin', '00000', 'admin@assur.com',
- '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin');
-
 -- ── CLASSROOMS ───────────────────────────────────────────────
 CREATE TABLE classrooms (
     id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

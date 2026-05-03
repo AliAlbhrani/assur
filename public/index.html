@@ -486,6 +486,15 @@ function showDashboard(user) {
   document.getElementById('dash-redirect-msg').textContent = m.msg;
 
   document.getElementById('dashboard').classList.add('show');
+
+  const redirects = {
+    admin:            '/public/admin.html',
+    educational_user: '/public/teacher.html',
+    student:          '/public/student.html',
+  };
+  setTimeout(() => {
+    location.href = redirects[user.role] || '/';
+  }, 1600);
 }
 
 async function handleLogout() {

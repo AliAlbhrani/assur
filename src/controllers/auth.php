@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 require_once __DIR__ . '/../helpers.php';
@@ -32,7 +31,7 @@ function login(): never
         json_error('Invalid phone or password', 401);
     }
 
-    if (!(bool) $user['is_active']) {
+    if (!(bool)$user['is_active']) {
         json_error('Your account has been deactivated. Contact an admin.', 403);
     }
 
@@ -62,7 +61,7 @@ function login(): never
 // ── REGISTER (admin only creates users) ──────────────────────
 function register(): never
 {
-    /* require_role('admin'); */
+    require_role('admin');
 
     $data = body();
 
@@ -135,7 +134,7 @@ function register(): never
             'phone'     => $phone,
             'email'     => $email,
             'role'      => $role,
-        ],
+        ]
     ], 201);
 }
 
@@ -192,84 +191,4 @@ function change_password(): never
     $stmt->close();
 
     json_out(['message' => 'Password changed successfully']);
-}
-
-
-function registerAdmin(): never
-{
-    /* require_role('admin'); */
-
-    /* $data = body(); */
-
-    $full_name = "admin";
-    $phone     = "00000";
-    $email     = "admin@admin.com";
-    $password  = "admin1234";
-    $role      = "admin";
-
-    // Validation
-    if (!$full_name || !$phone || !$password) {
-        json_error('full_name, phone, and password are required');
-    }
-
-    if (!in_array($role, ['admin', 'educational_user', 'student'], true)) {
-        json_error('Invalid role');
-    }
-
-    if (strlen($password) < 8) {
-        json_error('Password must be at least 8 characters');
-    }
-
-    if ($email && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        json_error('Invalid email address');
-    }
-
-    $db = db();
-
-    // Check phone uniqueness
-    $stmt = $db->prepare('SELECT id FROM users WHERE phone = ? LIMIT 1');
-    $stmt->bind_param('s', $phone);
-    $stmt->execute();
-    $stmt->store_result();
-    if ($stmt->num_rows > 0) {
-        $stmt->close();
-        json_error('Phone number already registered', 409);
-    }
-    $stmt->close();
-
-    // Check email uniqueness if provided
-    if ($email) {
-        $stmt = $db->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');
-        $stmt->bind_param('s', $email);
-        $stmt->execute();
-        $stmt->store_result();
-        if ($stmt->num_rows > 0) {
-            $stmt->close();
-            json_error('Email already registered', 409);
-        }
-        $stmt->close();
-    }
-
-    $hashed = password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]);
-
-    $stmt = $db->prepare(
-        'INSERT INTO users (full_name, phone, email, password, role)
-         VALUES (?, ?, ?, ?, ?)'
-    );
-    $emailVal = $email ?: null;
-    $stmt->bind_param('sssss', $full_name, $phone, $emailVal, $hashed, $role);
-    $stmt->execute();
-    $new_id = $stmt->insert_id;
-    $stmt->close();
-
-    json_out([
-        'message' => 'User created successfully',
-        'user'    => [
-            'id'        => $new_id,
-            'full_name' => $full_name,
-            'phone'     => $phone,
-            'email'     => $email,
-            'role'      => $role,
-        ],
-    ], 201);
 }

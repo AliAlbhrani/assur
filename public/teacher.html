@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Assur — Teacher</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080a10;--bg2:#0e1118;--bg3:#151922;--bg4:#1c2130;
+  --border:#222736;--border2:#2e3448;
+  --text:#e8eaf2;--text2:#8b92ab;--text3:#4a5068;
+  --accent:#2dd4a0;--accent2:#5eefc0;
+  --blue:#4f6ef7;--red:#f06a6a;--amber:#f0a940;--purple:#a78bfa;
+  --sidebar:230px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;font-size:14px}
+.sidebar{width:var(--sidebar);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100}
+.logo{padding:22px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.logo-mark{width:36px;height:36px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:#0a1a14}
+.logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:18px}.logo-text span{color:var(--accent)}
+.nav{flex:1;padding:14px 10px;overflow-y:auto}
+.nav-label{font-size:10px;font-weight:500;letter-spacing:1px;color:var(--text3);padding:0 8px;margin:12px 0 6px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;color:var(--text2);font-size:13px;transition:.15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;font-family:'DM Sans',sans-serif}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:rgba(45,212,160,.1);color:var(--accent);border:1px solid rgba(45,212,160,.2)}
+.nav-item svg{width:16px;height:16px;flex-shrink:0}
+.sidebar-footer{padding:14px 10px;border-top:1px solid var(--border)}
+.user-row{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px}
+.avi{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--blue));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;flex-shrink:0}
+.user-meta .nm{font-size:13px;font-weight:500}.user-meta .rl{font-size:11px;color:var(--text3)}
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 26px;height:58px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
+.page-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 15px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;transition:.15s}
+.btn-primary{background:var(--accent);color:#0a1a14;font-weight:600}.btn-primary:hover{background:var(--accent2)}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2)}.btn-ghost:hover{background:var(--bg3);color:var(--text)}
+.btn-danger{background:rgba(240,106,106,.1);color:var(--red);border:1px solid rgba(240,106,106,.2)}.btn-danger:hover{background:rgba(240,106,106,.2)}
+.btn-sm{padding:5px 11px;font-size:12px}
+.content{padding:26px;flex:1}
+.page{display:none}.page.active{display:block}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:600}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;padding:9px 12px;border-bottom:1px solid var(--border);text-align:left}
+td{padding:11px 12px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg3)}
+.td-name{color:var(--text);font-weight:500}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500}
+.bg-green{background:rgba(45,212,160,.1);color:var(--accent)}.bg-blue{background:rgba(79,110,247,.12);color:var(--blue)}
+.bg-amber{background:rgba(240,169,64,.1);color:var(--amber)}.bg-red{background:rgba(240,106,106,.1);color:var(--red)}
+.bg-purple{background:rgba(167,139,250,.1);color:var(--purple)}.bg-gray{background:var(--bg4);color:var(--text2)}
+.filters{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.fsel{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:7px 11px;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:300;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border)}
+.modal-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.modal-body{padding:22px}.modal-foot{display:flex;justify-content:flex-end;gap:9px;padding:14px 22px;border-top:1px solid var(--border)}
+.fg{margin-bottom:14px}.fl{display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.fi{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:9px 11px;border-radius:8px;font-size:13.5px;font-family:'DM Sans',sans-serif;outline:none;transition:.15s}
+.fi:focus{border-color:var(--accent)}.fi::placeholder{color:var(--text3)}
+select.fi{cursor:pointer}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;color:var(--text);z-index:500;display:flex;align-items:center;gap:9px;animation:slideUp .25s ease}
+.toast.success{border-color:rgba(45,212,160,.3);color:var(--accent)}.toast.error{border-color:rgba(240,106,106,.3);color:var(--red)}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.empty{text-align:center;padding:40px;color:var(--text3)}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(0,0,0,.2);border-top-color:#0a1a14;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle}
+@keyframes sp{to{transform:rotate(360deg)}}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+/* stars */
+.stars{color:var(--amber);font-size:14px;letter-spacing:1px}
+/* attendance dots */
+.att-dot{display:inline-block;width:10px;height:10px;border-radius:50%}
+.att-present{background:var(--accent)}.att-absent{background:var(--red)}.att-late{background:var(--amber)}.att-excused{background:var(--purple)}
+/* post card */
+.post-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">A</div>
+    <div class="logo-text">as<span>sur</span></div>
+  </div>
+  <nav class="nav">
+    <div class="nav-label">Overview</div>
+    <button class="nav-item active" onclick="nav('dashboard',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard
+    </button>
+    <div class="nav-label">Teaching</div>
+    <button class="nav-item" onclick="nav('grades',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>Grades
+    </button>
+    <button class="nav-item" onclick="nav('ratings',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Ratings
+    </button>
+    <button class="nav-item" onclick="nav('attendance',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Attendance
+    </button>
+    <div class="nav-label">Community</div>
+    <button class="nav-item" onclick="nav('posts',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Posts
+    </button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row"><div class="avi" id="nav-avi">T</div><div class="user-meta"><div class="nm" id="nav-name">Teacher</div><div class="rl">Educational Staff</div></div></div>
+    <button class="btn btn-ghost btn-sm" style="width:100%;margin-top:8px;justify-content:center" onclick="logout()">Sign out</button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="page-title" id="page-title">Dashboard</div>
+    <div></div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="page-dashboard" class="page active content">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px">
+      <div class="card"><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">My Classrooms</div><div style="font-family:Syne,sans-serif;font-size:30px;font-weight:700" id="t-cls">—</div></div>
+      <div class="card"><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Grades Given</div><div style="font-family:Syne,sans-serif;font-size:30px;font-weight:700" id="t-grades">—</div></div>
+      <div class="card"><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Posts Published</div><div style="font-family:Syne,sans-serif;font-size:30px;font-weight:700" id="t-posts">—</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+      <div class="card"><div class="card-header"><div class="card-title">My Classrooms</div></div><div id="dash-cls"></div></div>
+      <div class="card"><div class="card-header"><div class="card-title">Recent Posts</div><button class="btn btn-ghost btn-sm" onclick="nav('posts',null)">View all</button></div><div id="dash-posts-preview"></div></div>
+    </div>
+  </div>
+
+  <!-- GRADES -->
+  <div id="page-grades" class="page content">
+    <div class="filters">
+      <select class="fsel" id="g-cls-filter" onchange="loadStudentsByClass()"><option value="">Select Classroom</option></select>
+      <select class="fsel" id="g-subj-filter"><option value="">Select Subject</option></select>
+      <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="openModal('grade-modal')">+ Add Grade</button>
+    </div>
+    <div class="card" style="padding:0">
+      <table><thead><tr><th>Student</th><th>Subject</th><th>Score</th><th>Max</th><th>Label</th><th>Date</th><th></th></tr></thead>
+      <tbody id="grades-body"></tbody></table>
+    </div>
+  </div>
+
+  <!-- RATINGS -->
+  <div id="page-ratings" class="page content">
+    <div class="filters">
+      <select class="fsel" id="r-cls-filter" onchange="loadRatingStudents()"><option value="">Select Classroom</option></select>
+      <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="openModal('rating-modal')">+ Add Rating</button>
+    </div>
+    <div class="card" style="padding:0">
+      <table><thead><tr><th>Student</th><th>Classroom</th><th>Stars</th><th>Comment</th><th>Date</th></tr></thead>
+      <tbody id="ratings-body"></tbody></table>
+    </div>
+  </div>
+
+  <!-- ATTENDANCE -->
+  <div id="page-attendance" class="page content">
+    <div class="filters">
+      <select class="fsel" id="att-cls-filter" onchange="loadAttendance()"><option value="">Select Classroom</option></select>
+      <input type="date" class="fsel" id="att-date" onchange="loadAttendance()"/>
+      <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="openModal('att-modal')">+ Mark Attendance</button>
+    </div>
+    <div class="card" style="padding:0">
+      <table><thead><tr><th>Student</th><th>Date</th><th>Status</th><th>Notes</th></tr></thead>
+      <tbody id="att-body"></tbody></table>
+    </div>
+  </div>
+
+  <!-- POSTS -->
+  <div id="page-posts" class="page content">
+    <div class="filters">
+      <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="openModal('post-modal')">+ New Post</button>
+    </div>
+    <div id="posts-list"></div>
+  </div>
+</main>
+
+<!-- GRADE MODAL -->
+<div class="overlay" id="grade-modal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">Add Grade</div><button class="btn btn-ghost btn-sm" onclick="closeModal('grade-modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="fg"><label class="fl">Classroom</label><select class="fi" id="gm-cls" onchange="loadGradeModalSubjects();loadGradeModalStudents()"><option value="">Select…</option></select></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Subject</label><select class="fi" id="gm-subj"><option value="">Select…</option></select></div>
+        <div class="fg"><label class="fl">Student</label><select class="fi" id="gm-student"><option value="">Select…</option></select></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Score</label><input class="fi" id="gm-score" type="number" placeholder="e.g. 85"/></div>
+        <div class="fg"><label class="fl">Max Score</label><input class="fi" id="gm-max" type="number" value="100"/></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Label</label><input class="fi" id="gm-label" placeholder="e.g. Midterm"/></div>
+        <div class="fg"><label class="fl">Notes</label><input class="fi" id="gm-notes" placeholder="Optional"/></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('grade-modal')">Cancel</button><button class="btn btn-primary" onclick="submitGrade()">Save Grade</button></div>
+  </div>
+</div>
+
+<!-- RATING MODAL -->
+<div class="overlay" id="rating-modal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">Add Rating</div><button class="btn btn-ghost btn-sm" onclick="closeModal('rating-modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="fg"><label class="fl">Classroom</label><select class="fi" id="rm-cls" onchange="loadRatingModalStudents()"><option value="">Select…</option></select></div>
+      <div class="fg"><label class="fl">Student</label><select class="fi" id="rm-student"><option value="">Select…</option></select></div>
+      <div class="fg"><label class="fl">Stars (1–5)</label>
+        <div style="display:flex;gap:8px;margin-top:4px" id="star-picker">
+          <span style="font-size:24px;cursor:pointer" onclick="setStar(1)">☆</span>
+          <span style="font-size:24px;cursor:pointer" onclick="setStar(2)">☆</span>
+          <span style="font-size:24px;cursor:pointer" onclick="setStar(3)">☆</span>
+          <span style="font-size:24px;cursor:pointer" onclick="setStar(4)">☆</span>
+          <span style="font-size:24px;cursor:pointer" onclick="setStar(5)">☆</span>
+        </div>
+        <input type="hidden" id="rm-score" value="0"/>
+      </div>
+      <div class="fg"><label class="fl">Comment</label><textarea class="fi" id="rm-comment" rows="3" placeholder="Optional comment…" style="resize:vertical"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('rating-modal')">Cancel</button><button class="btn btn-primary" onclick="submitRating()">Save Rating</button></div>
+  </div>
+</div>
+
+<!-- ATTENDANCE MODAL -->
+<div class="overlay" id="att-modal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">Mark Attendance</div><button class="btn btn-ghost btn-sm" onclick="closeModal('att-modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="fg"><label class="fl">Classroom</label><select class="fi" id="am-cls" onchange="loadAttModalStudents()"><option value="">Select…</option></select></div>
+      <div class="fg"><label class="fl">Student</label><select class="fi" id="am-student"><option value="">Select…</option></select></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Date</label><input class="fi" id="am-date" type="date"/></div>
+        <div class="fg"><label class="fl">Status</label>
+          <select class="fi" id="am-status">
+            <option value="present">Present</option><option value="absent">Absent</option>
+            <option value="late">Late</option><option value="excused">Excused</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label class="fl">Notes</label><input class="fi" id="am-notes" placeholder="Optional"/></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('att-modal')">Cancel</button><button class="btn btn-primary" onclick="submitAttendance()">Save</button></div>
+  </div>
+</div>
+
+<!-- POST MODAL -->
+<div class="overlay" id="post-modal">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">New Post</div><button class="btn btn-ghost btn-sm" onclick="closeModal('post-modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="fg"><label class="fl">Title</label><input class="fi" id="pt-title" placeholder="Post title"/></div>
+      <div class="fg"><label class="fl">Body</label><textarea class="fi" id="pt-body" rows="5" placeholder="Write your announcement…" style="resize:vertical"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('post-modal')">Cancel</button><button class="btn btn-primary" onclick="submitPost()">Publish</button></div>
+  </div>
+</div>
+
+<script>
+const API='/api';
+let myClassrooms=[],selectedStar=0;
+
+async function api(path,opts={}){
+  const r=await fetch(API+path,{headers:{'Content-Type':'application/json'},...opts});
+  return r.json();
+}
+function toast(msg,type='success'){
+  const t=document.createElement('div');t.className=`toast ${type}`;t.textContent=msg;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),3000);
+}
+function nav(page,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el)el.classList.add('active');
+  const titles={dashboard:'Dashboard',grades:'Grades',ratings:'Student Ratings',attendance:'Attendance',posts:'Posts & Announcements'};
+  document.getElementById('page-title').textContent=titles[page]||page;
+  if(page==='grades')loadGradesPage();
+  if(page==='ratings')loadRatingsPage();
+  if(page==='attendance')loadAttPage();
+  if(page==='posts')loadPosts();
+}
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')}));
+
+function setStar(n){
+  selectedStar=n;
+  document.getElementById('rm-score').value=n;
+  document.querySelectorAll('#star-picker span').forEach((s,i)=>s.textContent=i<n?'★':'☆');
+}
+
+function populateSelect(id,items,valKey,labelKey,placeholder='Select…'){
+  const sel=document.getElementById(id);
+  sel.innerHTML=`<option value="">${placeholder}</option>`+items.map(i=>`<option value="${i[valKey]}">${i[labelKey]}</option>`).join('');
+}
+
+async function loadMyClassrooms(){
+  const d=await api('/classrooms');
+  myClassrooms=d.classrooms||[];
+  // populate all classroom selects
+  ['g-cls-filter','r-cls-filter','att-cls-filter','gm-cls','rm-cls','am-cls'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)populateSelect(id,myClassrooms,'id','name','Select Classroom');
+  });
+  // dash classrooms
+  const dc=document.getElementById('dash-cls');
+  if(dc)dc.innerHTML=myClassrooms.length
+    ?myClassrooms.map(c=>`<div style="padding:10px 0;border-bottom:1px solid var(--border)"><div style="font-size:13px;font-weight:500;color:var(--text)">${c.name}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${c.grade||''} · ${c.student_count} students</div></div>`).join('')
+    :'<div class="empty">No classrooms assigned yet</div>';
+  document.getElementById('t-cls').textContent=myClassrooms.length;
+}
+
+async function loadStudentsByClass(){
+  const clsId=document.getElementById('g-cls-filter').value;
+  const subjSel=document.getElementById('g-subj-filter');
+  subjSel.innerHTML='<option value="">All subjects</option>';
+  if(!clsId){document.getElementById('grades-body').innerHTML='';return;}
+  const sd=await api(`/classrooms/${clsId}/subjects`);
+  (sd.subjects||[]).forEach(s=>{subjSel.innerHTML+=`<option value="${s.id}">${s.name}</option>`;});
+}
+
+async function loadGradeModalSubjects(){
+  const clsId=document.getElementById('gm-cls').value;
+  if(!clsId)return;
+  const d=await api(`/classrooms/${clsId}/subjects`);
+  populateSelect('gm-subj',d.subjects||[],'id','name','Select subject');
+}
+async function loadGradeModalStudents(){
+  const clsId=document.getElementById('gm-cls').value;
+  if(!clsId)return;
+  const d=await api(`/classrooms/${clsId}/members`);
+  const students=(d.members||[]).filter(m=>m.classroom_role==='student');
+  populateSelect('gm-student',students,'id','full_name','Select student');
+}
+async function loadRatingModalStudents(){
+  const clsId=document.getElementById('rm-cls').value;
+  if(!clsId)return;
+  const d=await api(`/classrooms/${clsId}/members`);
+  const students=(d.members||[]).filter(m=>m.classroom_role==='student');
+  populateSelect('rm-student',students,'id','full_name','Select student');
+}
+async function loadAttModalStudents(){
+  const clsId=document.getElementById('am-cls').value;
+  if(!clsId)return;
+  const d=await api(`/classrooms/${clsId}/members`);
+  const students=(d.members||[]).filter(m=>m.classroom_role==='student');
+  populateSelect('am-student',students,'id','full_name','Select student');
+}
+async function loadRatingStudents(){
+  const clsId=document.getElementById('r-cls-filter').value;
+  if(!clsId){document.getElementById('ratings-body').innerHTML='';return;}
+}
+
+async function loadGradesPage(){
+  // show placeholder until classroom selected
+  document.getElementById('grades-body').innerHTML=`<tr><td colspan="7"><div class="empty">Select a classroom to view grades</div></td></tr>`;
+}
+
+async function loadRatingsPage(){
+  document.getElementById('ratings-body').innerHTML=`<tr><td colspan="5"><div class="empty">Select a classroom to view ratings</div></td></tr>`;
+}
+
+async function loadAttPage(){
+  const today=new Date().toISOString().slice(0,10);
+  document.getElementById('att-date').value=today;
+  document.getElementById('att-body').innerHTML=`<tr><td colspan="4"><div class="empty">Select a classroom to view attendance</div></td></tr>`;
+}
+
+async function loadAttendance(){
+  const clsId=document.getElementById('att-cls-filter').value;
+  const date=document.getElementById('att-date').value;
+  if(!clsId)return;
+  const d=await api(`/classrooms/${clsId}/attendance?date=${date}`);
+  const body=document.getElementById('att-body');
+  const list=d.attendance||[];
+  if(!list.length){body.innerHTML=`<tr><td colspan="4"><div class="empty">No attendance recorded for this date</div></td></tr>`;return;}
+  const statusBadge={present:'bg-green',absent:'bg-red',late:'bg-amber',excused:'bg-purple'};
+  body.innerHTML=list.map(a=>`<tr>
+    <td class="td-name">${a.student_name}</td>
+    <td>${a.date}</td>
+    <td><span class="badge ${statusBadge[a.status]||'bg-gray'}">${a.status}</span></td>
+    <td>${a.notes||'—'}</td></tr>`).join('');
+}
+
+async function submitGrade(){
+  const d=await api('/grades',{method:'POST',body:JSON.stringify({
+    student_id:+document.getElementById('gm-student').value,
+    subject_id:+document.getElementById('gm-subj').value,
+    score:+document.getElementById('gm-score').value,
+    max_score:+document.getElementById('gm-max').value||100,
+    label:document.getElementById('gm-label').value,
+    notes:document.getElementById('gm-notes').value,
+  })});
+  if(d.id){toast('Grade saved!');closeModal('grade-modal');}
+  else toast(d.error||'Failed','error');
+}
+
+async function submitRating(){
+  const score=+document.getElementById('rm-score').value;
+  if(!score){toast('Please select a star rating','error');return;}
+  const d=await api('/ratings',{method:'POST',body:JSON.stringify({
+    student_id:+document.getElementById('rm-student').value,
+    classroom_id:+document.getElementById('rm-cls').value,
+    score,
+    comment:document.getElementById('rm-comment').value,
+  })});
+  if(d.message){toast('Rating saved!');closeModal('rating-modal');}
+  else toast(d.error||'Failed','error');
+}
+
+async function submitAttendance(){
+  const d=await api('/attendance',{method:'POST',body:JSON.stringify({
+    student_id:+document.getElementById('am-student').value,
+    classroom_id:+document.getElementById('am-cls').value,
+    date:document.getElementById('am-date').value,
+    status:document.getElementById('am-status').value,
+    notes:document.getElementById('am-notes').value,
+  })});
+  if(d.message){toast('Attendance recorded!');closeModal('att-modal');loadAttendance();}
+  else toast(d.error||'Failed','error');
+}
+
+async function loadPosts(){
+  const d=await api('/posts');
+  const posts=d.posts||[];
+  const list=document.getElementById('posts-list');
+  if(!posts.length){list.innerHTML='<div class="empty">No posts yet. Be the first to post!</div>';return;}
+  list.innerHTML=posts.map(p=>`
+    <div class="post-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div style="flex:1">
+          <div style="font-family:Syne,sans-serif;font-size:15px;font-weight:700;margin-bottom:4px">${p.title}</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:10px">By ${p.author_name} · ${p.created_at?.slice(0,10)}</div>
+          <p style="font-size:13.5px;color:var(--text2);line-height:1.65">${p.body}</p>
+        </div>
+        <button class="btn btn-danger btn-sm" style="margin-left:16px;flex-shrink:0" onclick="deletePost(${p.id})">Delete</button>
+      </div>
+    </div>`).join('');
+  // dash preview
+  const dp=document.getElementById('dash-posts-preview');
+  if(dp)dp.innerHTML=posts.slice(0,4).map(p=>`<div style="padding:9px 0;border-bottom:1px solid var(--border)"><div style="font-size:13px;font-weight:500;color:var(--text)">${p.title}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${p.author_name} · ${p.created_at?.slice(0,10)}</div></div>`).join('');
+  document.getElementById('t-posts').textContent=posts.length;
+}
+
+async function submitPost(){
+  const d=await api('/posts',{method:'POST',body:JSON.stringify({
+    title:document.getElementById('pt-title').value,
+    body:document.getElementById('pt-body').value,
+  })});
+  if(d.id){toast('Post published!');closeModal('post-modal');loadPosts();}
+  else toast(d.error||'Failed','error');
+}
+
+async function deletePost(id){
+  if(!confirm('Delete this post?'))return;
+  const d=await api('/posts/'+id,{method:'DELETE'});
+  if(d.message){toast('Deleted');loadPosts();}
+  else toast(d.error||'Error','error');
+}
+
+async function logout(){
+  await api('/logout',{method:'POST'});location.href='/';
+}
+
+async function init(){
+  const d=await api('/me');
+  if(!d.user||d.user.role!=='educational_user'){location.href='/';return;}
+  const u=d.user;
+  document.getElementById('nav-avi').textContent=u.full_name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('nav-name').textContent=u.full_name;
+  await loadMyClassrooms();
+  await loadPosts();
+  document.getElementById('am-date').value=new Date().toISOString().slice(0,10);
+}
+init();
+</script>
+</body>
+</html>
